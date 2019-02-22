@@ -1,1 +1,1 @@
-from .visualizer import CubeVisualizer
+from .scene import Scene
