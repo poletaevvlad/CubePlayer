@@ -63,9 +63,9 @@ class Cube:
         self.layers_left: List[List[CubePart]] = [[] for _ in range(self.shape[0])]
 
         self._create_horizontal_end(0)
-        for y in range(1, self.shape[1] - 1):
+        for y in range(1, self.shape[2] - 1):
             self._create_vertical_layer(y)
-        self._create_horizontal_end(self.shape[1] - 1)
+        self._create_horizontal_end(self.shape[2] - 1)
 
     def _create_part(self, x: int, y: int, z: int, vao_type: VAO) -> None:
         def add_axis(axis_name: str, value: int, max_value: int, result: List[str]) -> None:
@@ -77,19 +77,19 @@ class Cube:
         position = tuple(p - w // 2 + (1 - w % 2) / 2.0 for w, p in zip(self.shape, (x, y, z)))
         axis: List[str] = []
         add_axis("x", x, self.shape[0], axis)
-        add_axis("y", y, self.shape[1], axis)
-        add_axis("z", z, self.shape[2], axis)
+        add_axis("y", y, self.shape[2], axis)
+        add_axis("z", z, self.shape[1], axis)
 
         part = CubePart(vao_type, self.shader, position, axis)
-        self.layers_front[y].append(part)
+        self.layers_front[self.shape[1] - 1 - z].append(part)
         self.layers_left[x].append(part)
-        self.layers_top[z].append(part)
+        self.layers_top[self.shape[2] - 1 - y].append(part)
 
     def _create_horizontal_end(self, y: int) -> None:
         for x in range(self.shape[0]):
-            for z in range(self.shape[2]):
+            for z in range(self.shape[1]):
                 x_corner = x == 0 or x == self.shape[0] - 1
-                z_corner = z == 0 or z == self.shape[2] - 1
+                z_corner = z == 0 or z == self.shape[1] - 1
                 shape = self.vao_flat
                 if x_corner and z_corner:
                     shape = self.vao_corner
@@ -98,13 +98,13 @@ class Cube:
                 self._create_part(x, y, z, shape)
 
     def _create_vertical_layer(self, y: int) -> None:
-        for z in {0, self.shape[2] - 1}:
+        for z in {0, self.shape[1] - 1}:
             self._create_part(0, y, z, self.vao_edge)
             self._create_part(self.shape[0] - 1, y, z, self.vao_edge)
             for x in range(1, self.shape[0] - 1):
                 self._create_part(x, y, z, self.vao_flat)
 
-        for z in range(1, self.shape[2] - 1):
+        for z in range(1, self.shape[1] - 1):
             self._create_part(0, y, z, self.vao_flat)
             self._create_part(self.shape[0] - 1, y, z, self.vao_flat)
 

@@ -9,18 +9,15 @@ from .cube import Cube
 class Scene:
     def __init__(self):
         self.camera = Camera()
+        self.camera.rotation = [-0.3, 0.5, 0]
         self.animator = Animator()
 
         self.background: Background = Background((0.2, 0.2, 0.2), (0.5, 0.5, 0.5))
-        self.cube = Cube((5, 5, 5))
+        self.cube = Cube((7, 5, 3))
 
     def render(self, width: int, height: int, delta_time: float) -> None:
         glDisable(GL_DEPTH_TEST)
         self.background.draw()
-
-        self.camera.rotation[1] += delta_time
-        self.camera.rotation[0] += delta_time
-        self.camera.rotation[2] += delta_time
 
         glEnable(GL_DEPTH_TEST)
         glClear(GL_DEPTH_BUFFER_BIT)
