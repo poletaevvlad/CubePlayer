@@ -7,7 +7,8 @@ from OpenGL.GL import *
 from .engine.vbo import load_obj, VAO
 from .engine.shaders import Program
 from .engine.objects import Object3d, nullptr
-from .engine.linalg import Matrix, translate, change_axis
+from .engine.linalg import (Matrix, translate, change_axis,
+                            rotate_x, rotate_y, rotate_z, C_IDENTITY)
 
 
 class CubePart(Object3d):
@@ -16,12 +17,32 @@ class CubePart(Object3d):
         super(CubePart, self).__init__(vao, material)
         self.object_transform: Matrix = (translate(*init_offset) *
                                          change_axis(*axis_flip))
+        self.temp_rotation: List[float] = [0.0, 0.0, 0.0]
+
+    def set_temp_rotation(self, x: float = 0, y: float = 0, z: float = 0) -> None:
+        self.temp_rotation = [x, y, z]
+
+    def apply_temp_rotation(self) -> None:
+        rotation = (rotate_x(self.temp_rotation[0]) * rotate_y(self.temp_rotation[1]) *
+                    rotate_z(self.temp_rotation[2]))
+        self.object_transform = rotation * self.object_transform
+        self.temp_rotation = [0, 0, 0]
+
+    def _has_temp_rotation(self) -> bool:
+        return any(abs(x) > 1e-5 for x in self.temp_rotation)
 
     def draw(self, cam_transform: Array, cam_projection: Array) -> None:
         self.material.use()
         glUniformMatrix4fv(self.material.uniforms["cameraTransform"], 1, GL_TRUE, cam_transform)
         glUniformMatrix4fv(self.material.uniforms["cameraProjection"], 1, GL_TRUE, cam_projection)
         glUniformMatrix4fv(self.material.uniforms["objectTransform"], 1, GL_TRUE, self.object_transform.to_ctypes())
+
+        if self._has_temp_rotation():
+            rotation = (rotate_x(self.temp_rotation[0]) * rotate_y(self.temp_rotation[1]) *
+                        rotate_z(self.temp_rotation[2])).to_ctypes()
+        else:
+            rotation = C_IDENTITY
+        glUniformMatrix4fv(self.material.uniforms["tempTransform"], 1, GL_TRUE, rotation)
 
         self.vao.bind()
         glDrawElements(GL_TRIANGLES, self.vao.elements_count, GL_UNSIGNED_SHORT, nullptr)

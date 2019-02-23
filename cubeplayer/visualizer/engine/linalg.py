@@ -100,3 +100,13 @@ def change_axis(*axis: str) -> Matrix:
     for i, j in zip(range(len(axis), 4), unused):
         matrix.values[j][i] = 1
     return matrix
+
+
+IDENTITY = Matrix([
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 1]
+])
+
+C_IDENTITY = IDENTITY.to_ctypes()
