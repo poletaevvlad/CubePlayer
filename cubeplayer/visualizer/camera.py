@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 from math import radians, tan
 from .linalg import Matrix, rotate_x, rotate_y, rotate_z, translate
 
@@ -11,8 +11,8 @@ class Camera:
     def __init__(self, center: Coordinate = ORIGIN, rotation: Coordinate = ORIGIN,
                  offset_value: float = 3, horizontal_fov: float = radians(90),
                  far: float = 50.0, near: float = 0.1):
-        self.center: Coordinate = list(center)
-        self.rotation: Coordinate = list(rotation)
+        self.center: List[float] = list(center)
+        self.rotation: List[float] = list(rotation)
         self.offset_value: float = offset_value
         self.horizontal_fov: float = horizontal_fov
         self.far: float = far
