@@ -25,13 +25,11 @@ class Background(Object3d):
         super(Background, self).__init__(vao, shader)
 
         color_type = c_float * 3
-        self.gradient_to: ColorType = color_type(*gradient_to)
-        self.gradient_from: ColorType = color_type(*gradient_from)
+        shader.use()
+        glUniform3fv(self.material.uniforms["colorFrom"], 1, color_type(*gradient_to))
+        glUniform3fv(self.material.uniforms["colorTo"], 1, color_type(*gradient_from))
 
     def draw(self) -> None:
         self.material.use()
-        glUniform3fv(self.material.uniforms["colorFrom"], 1, self.gradient_from)
-        glUniform3fv(self.material.uniforms["colorTo"], 1, self.gradient_to)
-
         self.vao.bind()
         glDrawElements(GL_TRIANGLES, self.vao.elements_count, GL_UNSIGNED_SHORT, nullptr)
