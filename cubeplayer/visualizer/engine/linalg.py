@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple
 from math import cos, sin
 from ctypes import *
 

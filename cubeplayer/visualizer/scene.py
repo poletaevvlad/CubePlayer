@@ -1,8 +1,8 @@
 from OpenGL.GL import *
 
 from .animation import Animator
-from .camera import Camera
-from .objects import Background, CubeComponent
+from visualizer.engine.camera import Camera
+from visualizer.engine.objects import Background, CubeComponent
 
 
 class Scene:
@@ -19,7 +19,10 @@ class Scene:
     def render(self, width: int, height: int, delta_time: float) -> None:
         self.animator.run(delta_time)
 
+        glDisable(GL_DEPTH_TEST)
         self.background.draw()
+
+        glEnable(GL_DEPTH_TEST)
         glClear(GL_DEPTH_BUFFER_BIT)
 
         camera_transform = self.camera.position_transform().to_ctypes()

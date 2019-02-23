@@ -46,7 +46,7 @@ class CubeComponent(Object3d):
             shader = Program("object")
             CubeComponent._shader = shader
 
-        vao = load_obj(Path(__file__).parents[2] / "models" / "monkey.obj")
+        vao = load_obj(Path(__file__).parents[3] / "models" / "monkey.obj")
         super(CubeComponent, self).__init__(vao, shader)
 
     def draw(self, camera_transform: Array, camera_projection: Array) -> None:
