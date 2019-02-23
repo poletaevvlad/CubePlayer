@@ -7,10 +7,14 @@ uniform mat4 cameraTransform;
 uniform mat4 cameraProjection;
 uniform mat4 objectTransform;
 
-out vec4 trNormal;
+out vec3 trNormal;
+out vec3 worldPos;
 
 void main(){
     mat4 transform = cameraTransform * objectTransform;
-    gl_Position = cameraProjection * transform * vec4(position, 1);
-    trNormal = inverse(transpose(transform)) * vec4(normal, 0);
+
+    vec4 camaraSpacePosition = transform * vec4(position, 1);
+    gl_Position = cameraProjection * camaraSpacePosition;
+    trNormal = (inverse(transpose(transform)) * vec4(normal, 0)).xyz;
+    worldPos = camaraSpacePosition.xyz;
 }
