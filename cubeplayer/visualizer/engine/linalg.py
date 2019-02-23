@@ -24,15 +24,6 @@ class Matrix:
             for i in range(4)
         ])
 
-    # def mul_vector(self, vector: VectorType) -> VectorType:
-    #     def get_mul_result(i: int) -> float:
-    #         result = 0.0
-    #         for j in range(4):
-    #             result += vector[j] * self[i, j]
-    #         return result
-    #
-    #     return tuple(get_mul_result(x) for x in range(4))
-
     # noinspection PyCallingNonCallable,PyTypeChecker
     def to_ctypes(self) -> Array:
         array_type = c_float * 16
@@ -49,7 +40,7 @@ def translate(dx: float = 0, dy: float = 0, dz: float = 0) -> Matrix:
     ])
 
 
-def mirror(x: bool = False, y: bool = False, z: bool = False) -> Matrix:
+def reflect(x: bool = False, y: bool = False, z: bool = False) -> Matrix:
     return Matrix([
         [-1 if x else 1, 0, 0, 0],
         [0, -1 if y else 1, 0, 0],
@@ -89,3 +80,23 @@ def rotate_z(angle: float) -> Matrix:
         [0, 0, 1, 0],
         [0, 0, 0, 1]
     ])
+
+
+def change_axis(*axis: str) -> Matrix:
+    axis_to_index = dict(x=0, y=1, z=2)
+    matrix = Matrix([
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 1]
+    ])
+
+    unused = {0, 1, 2}
+    for i, x in enumerate(axis):
+        j = axis_to_index[x[0]]
+        unused.remove(j)
+        matrix.values[j][i] = 1 if len(x) == 1 else -1
+
+    for i, j in zip(range(len(axis), 4), unused):
+        matrix.values[j][i] = 1
+    return matrix

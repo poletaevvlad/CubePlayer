@@ -9,7 +9,7 @@ ORIGIN: Coordinate = (0.0, 0.0, 0.0)
 
 class Camera:
     def __init__(self, center: Coordinate = ORIGIN, rotation: Coordinate = ORIGIN,
-                 offset_value: float = 3, horizontal_fov: float = radians(90),
+                 offset_value: float = 10, horizontal_fov: float = radians(90),
                  far: float = 50.0, near: float = 0.1):
         self.center: List[float] = list(center)
         self.rotation: List[float] = list(rotation)

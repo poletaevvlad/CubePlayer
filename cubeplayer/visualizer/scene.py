@@ -1,8 +1,9 @@
 from OpenGL.GL import *
 
 from .animation import Animator
-from visualizer.engine.camera import Camera
-from visualizer.engine.objects import Background, CubeComponent
+from .engine.camera import Camera
+from .engine.objects import Background
+from .cube import Cube
 
 
 class Scene:
@@ -11,20 +12,20 @@ class Scene:
         self.animator = Animator()
 
         self.background: Background = Background((0.2, 0.2, 0.2), (0.5, 0.5, 0.5))
-        self.object = CubeComponent()
-
-    def rotate_camera(self, x: float):
-        self.camera.rotation[2] = x
+        self.cube = Cube((5, 5, 5))
 
     def render(self, width: int, height: int, delta_time: float) -> None:
-        self.animator.run(delta_time)
-
         glDisable(GL_DEPTH_TEST)
         self.background.draw()
 
+        self.camera.rotation[1] += delta_time
+        self.camera.rotation[0] += delta_time
+        self.camera.rotation[2] += delta_time
+
         glEnable(GL_DEPTH_TEST)
         glClear(GL_DEPTH_BUFFER_BIT)
+        self.animator.run(delta_time)
 
         camera_transform = self.camera.position_transform().to_ctypes()
         camera_perspective = self.camera.perspective_transform(width, height).to_ctypes()
-        self.object.draw(camera_transform, camera_perspective)
+        self.cube.draw(camera_transform, camera_perspective)

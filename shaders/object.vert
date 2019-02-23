@@ -5,10 +5,12 @@ layout(location = 1) in vec3 normal;
 
 uniform mat4 cameraTransform;
 uniform mat4 cameraProjection;
+uniform mat4 objectTransform;
 
 out vec4 trNormal;
 
 void main(){
-    gl_Position = cameraProjection * cameraTransform * vec4(position, 1);
-    trNormal = inverse(transpose(cameraTransform)) * vec4(normal, 0);
+    mat4 transform = cameraTransform * objectTransform;
+    gl_Position = cameraProjection * transform * vec4(position, 1);
+    trNormal = inverse(transpose(transform)) * vec4(normal, 0);
 }

@@ -1,11 +1,11 @@
-from .shaders import Program
-from .vbo import VAO, create_background, load_obj
+from abc import ABC
+from ctypes import c_float, c_void_p
+from typing import Tuple
 
 from OpenGL.GL import *
-from abc import ABC
-from typing import Tuple
-from ctypes import c_float, c_void_p, Array
-from pathlib import Path
+
+from .shaders import Program
+from .vbo import VAO, create_background
 
 ColorType = Tuple[float, float, float]
 nullptr = c_void_p(0)
@@ -32,27 +32,6 @@ class Background(Object3d):
         self.material.use()
         glUniform3fv(self.material.uniforms["colorFrom"], 1, self.gradient_from)
         glUniform3fv(self.material.uniforms["colorTo"], 1, self.gradient_to)
-
-        self.vao.bind()
-        glDrawElements(GL_TRIANGLES, self.vao.elements_count, GL_UNSIGNED_SHORT, nullptr)
-
-
-class CubeComponent(Object3d):
-    _shader: Program = None
-
-    def __init__(self):
-        shader = CubeComponent._shader
-        if shader is None:
-            shader = Program("object")
-            CubeComponent._shader = shader
-
-        vao = load_obj(Path(__file__).parents[3] / "models" / "monkey.obj")
-        super(CubeComponent, self).__init__(vao, shader)
-
-    def draw(self, camera_transform: Array, camera_projection: Array) -> None:
-        self.material.use()
-        glUniformMatrix4fv(self.material.uniforms["cameraTransform"], 1, GL_TRUE, camera_transform)
-        glUniformMatrix4fv(self.material.uniforms["cameraProjection"], 1, GL_TRUE, camera_projection)
 
         self.vao.bind()
         glDrawElements(GL_TRIANGLES, self.vao.elements_count, GL_UNSIGNED_SHORT, nullptr)
