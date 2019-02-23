@@ -65,5 +65,7 @@ class Uniforms:
         if item in self.uniforms:
             return self.uniforms[item]
         location = glGetUniformLocation(self.program.program_id, item)
+        if location == -1:
+            raise ValueError(f"Unknown uniform: {item}")
         self.uniforms[item] = location
         return location

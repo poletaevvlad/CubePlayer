@@ -2,7 +2,6 @@ from typing import Tuple
 from math import radians, tan
 from .linalg import Matrix, rotate_x, rotate_y, rotate_z, translate
 
-
 Coordinate = Tuple[float, float, float]
 
 ORIGIN: Coordinate = (0.0, 0.0, 0.0)
@@ -10,7 +9,7 @@ ORIGIN: Coordinate = (0.0, 0.0, 0.0)
 
 class Camera:
     def __init__(self, center: Coordinate = ORIGIN, rotation: Coordinate = ORIGIN,
-                 offset_value: float = 5, horizontal_fov: float = radians(90),
+                 offset_value: float = 3, horizontal_fov: float = radians(90),
                  far: float = 50.0, near: float = 0.1):
         self.center: Coordinate = center
         self.rotation: Coordinate = rotation
@@ -39,6 +38,3 @@ class Camera:
                 -2 * self.far * self.near / (self.far - self.near)],
             [0, 0, -1, 0]
         ])
-
-    def transform(self, width: int, heigth: int) -> Matrix:
-        return self.perspective_transform(width, heigth) * self.position_transform()

@@ -12,7 +12,8 @@ class Scene:
 
     def render(self, width: int, height: int) -> None:
         glClear(GL_DEPTH_BUFFER_BIT)
-        self.background.draw()
+        # self.background.draw()
 
-        camera_transform = self.camera.transform(width, height).to_ctypes()
-        self.object.draw(camera_transform)
+        camera_transform = self.camera.position_transform().to_ctypes()
+        camera_perspective = self.camera.perspective_transform(width, height).to_ctypes()
+        self.object.draw(camera_transform, camera_perspective)

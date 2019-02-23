@@ -98,13 +98,13 @@ def load_obj(file: Path) -> VAO:
     indices = (c_ushort * (len(faces) * 3))()
 
     for i, ((v1, n1), (v2, n2), (v3, n3)) in enumerate(faces):
-        indices[i * 3], indices[i * 3 + 1], indices[i * 3 + 2] = v1, v2, v3
-        norm_buffer[v1 * 3], norm_buffer[v1 * 3 + 1], norm_buffer[v1 * 3 + 2] = normals[v1]
-        norm_buffer[v2 * 3], norm_buffer[v2 * 3 + 1], norm_buffer[v2 * 3 + 2] = normals[v2]
-        norm_buffer[v3 * 3], norm_buffer[v3 * 3 + 1], norm_buffer[v3 * 3 + 2] = normals[v3]
+        indices[i * 3: i * 3 + 3] = v1, v2, v3
+        norm_buffer[v1 * 3: v1 * 3 + 3] = normals[n1]
+        norm_buffer[v2 * 3: v2 * 3 + 3] = normals[n2]
+        norm_buffer[v3 * 3: v3 * 3 + 3] = normals[n3]
 
     vao = VAO()
     vao.array(vert_buffer, (0, 3, GL_FLOAT, GL_FALSE, sizeof(c_float) * 3, c_void_p(0)))
-    vao.array(norm_buffer, (1, 3, GL_FLOAT, GL_TRUE, sizeof(c_float) * 3, c_void_p(0)))
+    vao.array(norm_buffer, (1, 3, GL_FLOAT, GL_FALSE, sizeof(c_float) * 3, c_void_p(0)))
     vao.elements(indices)
     return vao

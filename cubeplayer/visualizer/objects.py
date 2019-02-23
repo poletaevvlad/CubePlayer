@@ -1,4 +1,3 @@
-from visualizer.linalg import Matrix
 from .shaders import Program
 from .vbo import VAO, create_background, load_obj
 
@@ -50,10 +49,10 @@ class CubeComponent(Object3d):
         vao = load_obj(Path(__file__).parents[2] / "models" / "monkey.obj")
         super(CubeComponent, self).__init__(vao, shader)
 
-    def draw(self, camera_transform: Array) -> None:
+    def draw(self, camera_transform: Array, camera_projection: Array) -> None:
         self.material.use()
-        glUniformMatrix4fv(self.material.uniforms["cameraTransform"], 1, GL_FALSE, camera_transform)
+        glUniformMatrix4fv(self.material.uniforms["cameraTransform"], 1, GL_TRUE, camera_transform)
+        glUniformMatrix4fv(self.material.uniforms["cameraProjection"], 1, GL_TRUE, camera_projection)
 
         self.vao.bind()
         glDrawElements(GL_TRIANGLES, self.vao.elements_count, GL_UNSIGNED_SHORT, nullptr)
-
