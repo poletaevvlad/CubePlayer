@@ -11,8 +11,8 @@ class Camera:
     def __init__(self, center: Coordinate = ORIGIN, rotation: Coordinate = ORIGIN,
                  offset_value: float = 3, horizontal_fov: float = radians(90),
                  far: float = 50.0, near: float = 0.1):
-        self.center: Coordinate = center
-        self.rotation: Coordinate = rotation
+        self.center: Coordinate = list(center)
+        self.rotation: Coordinate = list(rotation)
         self.offset_value: float = offset_value
         self.horizontal_fov: float = horizontal_fov
         self.far: float = far
@@ -20,7 +20,7 @@ class Camera:
 
     def position_transform(self) -> Matrix:
         rotate = rotate_z(self.rotation[2]) * rotate_x(self.rotation[0]) * rotate_y(self.rotation[1])
-        return rotate * translate(0, 0, -self.offset_value)
+        return translate(0, 0, -self.offset_value) * rotate
 
     def perspective_transform(self, width: int, height: int) -> Matrix:
         aspect_ratio = float(width) / float(height)
