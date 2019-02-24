@@ -4,7 +4,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GLib
 
-from ..visualizer.scene import Scene
+from ..renderer.scene import Scene
 
 
 class CubeVisualizer(Gtk.GLArea):
