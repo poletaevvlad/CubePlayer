@@ -11,9 +11,15 @@ from .engine.linalg import (Matrix, translate, change_axis,
 from .engine.objects import Object3d, nullptr
 from .engine.shaders import Program
 from .engine.vbo import load_obj, VAO
+from .engine.light import DirectionalLight
 
 
 class CubePart(Object3d):
+    LIGHTS: List[DirectionalLight] = [
+        DirectionalLight((1.0, 0.5, 0.5), (1.0, 1.0, 1.0)),
+        DirectionalLight((0.5, 0.5, 1.0), (-1.0, 0.0, 1.0))
+    ]
+
     def __init__(self, vao: VAO, material: Program, init_offset: Tuple[float, ...],
                  axis_flip: List[str]):
         super(CubePart, self).__init__(vao, material)
@@ -55,7 +61,8 @@ class Cube:
         self.cube: CubeModel[CubePart] = CubeModel[CubePart](shape)
 
         self.shader = Program("object")
-        self.shape: Tuple[int, int, int] = shape
+        self.shader.use()
+        DirectionalLight.push_uniform_array(self.shader, "lights", CubePart.LIGHTS)
 
         models_path = Path(__file__).parents[2] / "models"
         self.vao_corner = load_obj(models_path / "corner.obj")
@@ -66,8 +73,8 @@ class Cube:
 
         for side, i, j in self.cube.iterate_components():
             x, y, z = self.cube.get_absolute_coordinates(side, i, j)
-            y = self.shape[2] - 1 - y
-            z = self.shape[1] - 1 - z
+            y = self.cube.shape[2] - 1 - y
+            z = self.cube.shape[1] - 1 - z
 
             part = self._create_part(x, y, z)
             self.parts.append(part)
@@ -85,11 +92,11 @@ class Cube:
                 result.append(axis_name + "'")
                 num_corners += 1
 
-        position = tuple(p - w // 2 + (1 - w % 2) / 2.0 for w, p in zip(self.shape, (x, y, z)))
+        position = tuple(p - w // 2 + (1 - w % 2) / 2.0 for w, p in zip(self.cube.shape, (x, y, z)))
         axis: List[str] = []
-        add_axis("x", x, self.shape[0], axis)
-        add_axis("y", y, self.shape[2], axis)
-        add_axis("z", z, self.shape[1], axis)
+        add_axis("x", x, self.cube.shape[0], axis)
+        add_axis("y", y, self.cube.shape[2], axis)
+        add_axis("z", z, self.cube.shape[1], axis)
 
         vao = self.vao_flat if num_corners == 0 else self.vao_edge if num_corners == 1 else self.vao_corner
         part = CubePart(vao, self.shader, position, axis)
