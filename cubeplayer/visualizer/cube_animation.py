@@ -44,8 +44,6 @@ class CubeAnimationManager:
 
     def _create_turn_animation(self, action: Turn) -> Animation:
         turns = action.turns
-        # if action.side in {Side.BACK, Side.FRONT}:
-        #     turns = 4 - turns
         if turns == 3:
             turns = -1
         if action.side in {Side.TOP, Side.BOTTOM}:
