@@ -36,5 +36,4 @@ class Animation(Generic[T], ABC):
 
 class FloatAnimation(Animation[float]):
     def interpolate(self, fraction: float) -> float:
-        print(fraction)
         return self.value_to * fraction + self.value_from * (1 - fraction)
