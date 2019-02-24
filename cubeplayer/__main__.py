@@ -1,47 +1,31 @@
-from typing import List, Tuple
+from libcube.actions import Action
+from cubeplayer.parsing import CubeFormulaParamType
+
+from typing import List
+import signal
 
 import click
 
-from libcube.actions import Action
-from libcube.parser import parse_actions, ParsingError
 
+def run_gtk(formula: List[Action]):
+    import gi
+    gi.require_version("Gtk", "3.0")
+    gi.require_version("GtkSource", "3.0")
+    from gi.repository import Gtk
+    from cubeplayer.gtk_backend import MainWindow
 
-def construct_error_message(value: str, column: int, left_offset: int = 20, right_offset: int = 20,
-                            truncation: str = "...") -> Tuple[str, int]:
-    assert len(truncation) < left_offset
-    assert len(truncation) < right_offset
-
-    if column > left_offset:
-        value = truncation + value[column - left_offset + len(truncation):]
-        column = left_offset
-
-    if len(value) - column > right_offset:
-        value = value[:column + right_offset - len(truncation) + 1] + truncation
-
-    return value, column
-
-
-class CubeFormulaParamType(click.ParamType):
-    name = "formula"
-
-    def convert(self, value: str, param: str, ctx: click.Context) -> List[Action]:
-        try:
-            return list(parse_actions(value))
-        except ParsingError as e:
-            value = value.replace("\n", " ").replace("\t", " ")
-            column = e.column
-            value, column = construct_error_message(value, column)
-            self.fail("".join([str(e), "\n", " " * 7, value, "\n", " " * (7 + column), "^"]), param, ctx)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    window = MainWindow(formula)
+    window.show()
+    window.connect("destroy", Gtk.main_quit)
+    Gtk.main()
 
 
 @click.command()
 @click.option("-b", "backend", type=click.Choice(["gtk"]), default="gtk")
 @click.argument("formula", type=CubeFormulaParamType())
-def main(formula: str, backend: str) -> None:
-    pass
-    # signal.signal(signal.SIGINT, signal.SIG_DFL)
-    # app = Application()
-    # app.run(sys.argv)
+def main(formula: List[Action], backend: str) -> None:
+    run_gtk(formula)
 
 
 if __name__ == "__main__":
