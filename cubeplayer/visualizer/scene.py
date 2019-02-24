@@ -16,15 +16,15 @@ class Scene:
         self.camera.rotation = [-0.3, 0.5, 0]
         self.animator = Animator()
 
-        self.background: Background = Background((0.2, 0.2, 0.2), (0.5, 0.5, 0.5))
-        self.cube = Cube((3, 3, 3))
+        self.background: Background = Background((0.4, 0.4, 0.4), (0.2, 0.2, 0.2))
+        self.cube = Cube((5, 5, 5))
         self.cube_animator = CubeAnimationManager(self.cube, self.animator, self.camera)
 
         for _ in range(4):
             self.cube_animator.enqueue(Turn(Side.RIGHT, 1, 1))
-            self.cube_animator.enqueue(Turn(Side.FRONT, 1, 1))
+            self.cube_animator.enqueue(Turn(Side.TOP, 1, 1))
             self.cube_animator.enqueue(Turn(Side.RIGHT, 1, 3))
-            self.cube_animator.enqueue(Turn(Side.FRONT, 1, 3))
+            self.cube_animator.enqueue(Turn(Side.TOP, 1, 3))
 
     def render(self, width: int, height: int, delta_time: float) -> None:
         glDisable(GL_DEPTH_TEST)

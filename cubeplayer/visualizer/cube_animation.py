@@ -1,13 +1,13 @@
 import math
 import sys
 from collections import deque
-from typing import Deque
+from typing import Deque, Set
 
 from libcube.actions import Action, Turn
-from libcube.orientation import Side
+from libcube.orientation import Side, Orientation
 from .animation import Animator, FloatAnimation, Animation
-from .animation.easing import linear
-from .cube import Cube
+from .animation.easing import ease_in_out_quad
+from .cube import Cube, CubePart
 from .engine.camera import Camera
 
 
@@ -15,6 +15,7 @@ class CubeAnimationManager:
     def __init__(self, cube: Cube, animator: Animator, camera: Camera):
         self.queue: Deque[Action] = deque()
         self.cube: Cube = cube
+        self.orientation: Orientation = Orientation()
         self.animator: Animator = animator
         self.camera: Camera = camera
         self.is_played: bool = False
@@ -24,52 +25,74 @@ class CubeAnimationManager:
         if not self.is_played:
             self._run_animation()
 
+    def _get_parts_front(self, orientation: Orientation) -> Set[CubePart]:
+        components = set()
+        side = self.cube.cube.get_side(orientation)
+        for i in range(1, side.rows - 1):
+            for j in range(1, side.columns - 1):
+                if side[i, j].data is not None:
+                    components.add(side[i, j].data)
+        return components
+
+    def _get_parts_slice(self, orientation: Orientation, index: int) -> Set[CubePart]:
+        components = set()
+        for _ in range(4):
+            side = self.cube.cube.get_side(orientation)
+            components.update(x.data for x in side.get_column(index) if x.data is not None)
+            orientation = orientation.to_top
+        return components
+
     def _create_turn_animation(self, action: Turn) -> Animation:
         turns = action.turns
-        if action.side in {Side.FRONT, Side.RIGHT, Side.TOP}:
-            turns = 4 - turns
-        angle = math.radians(min(turns * 90, 360 - turns * 90))
+        # if action.side in {Side.BACK, Side.FRONT}:
+        #     turns = 4 - turns
+        if turns == 3:
+            turns = -1
+        if action.side in {Side.TOP, Side.BOTTOM}:
+            turns = -turns
+        angle = math.radians(90 * turns)
 
-        if action.side in {Side.LEFT, Side.RIGHT}:
-            axis = "x"
-            components_list = self.cube.layers_left
-            if action.side == Side.RIGHT:
-                components_list = components_list[::-1]
-        elif action.side in {Side.TOP, Side.BOTTOM}:
-            axis = "y"
-            components_list = self.cube.layers_top
-            if action.side == Side.BOTTOM:
-                components_list = components_list[::-1]
-        else:
+        if action.side in {Side.FRONT, Side.BACK}:
             axis = "z"
-            components_list = self.cube.layers_front
-            if action.side == Side.BACK:
-                components_list = components_list[::-1]
-        components = [component for row in action.sides for component in components_list[row - 1]]
+        elif action.side in {Side.LEFT, Side.RIGHT}:
+            axis = "x"
+        else:
+            axis = "y"
+
+        orientation = Orientation.regular(action.side)
+        width = self.cube.cube.get_side(orientation).columns
+        components = set()
+        for index in action.sides:
+            index -= 1
+            if index == 0:
+                components.update(self._get_parts_front(orientation))
+            elif index == width - 1:
+                components.update(self._get_parts_front(orientation.to_right.to_right))
+            components.update(self._get_parts_slice(orientation.to_right, index))
 
         def execution_callback(value: float) -> None:
             for component in components:
                 component.set_temp_rotation(**{axis: value})
 
         def completion_callback() -> None:
-            self._run_animation()
             for component in components:
                 component.apply_temp_rotation()
+            self._run_animation()
 
-        return FloatAnimation(0.0, angle, execution_callback, linear, completion_callback)
+        return FloatAnimation(0.0, angle, execution_callback, ease_in_out_quad, completion_callback)
 
     def _run_animation(self) -> None:
         self.is_played = True
         animation = None
-        while len(self.queue) > 0:
+        while len(self.queue) > 0 and animation is None:
             action = self.queue.pop()
             if isinstance(action, Turn):
                 animation = self._create_turn_animation(action)
-                break
             else:
                 print("Unknown action", file=sys.stderr)
+            self.orientation = action.perform(self.cube.cube, self.orientation)
 
         if animation is None:
             self.is_played = False
         else:
-            self.animator.add(animation, 1)
+            self.animator.add(animation, 0.3)

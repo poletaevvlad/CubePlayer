@@ -1,14 +1,16 @@
-from typing import Tuple, List
-from pathlib import Path
 from ctypes import Array
+from pathlib import Path
+from typing import Tuple, List
 
 from OpenGL.GL import *
 
-from .engine.vbo import load_obj, VAO
-from .engine.shaders import Program
-from .engine.objects import Object3d, nullptr
+from libcube.cube import Cube as CubeModel
+from libcube.orientation import Orientation
 from .engine.linalg import (Matrix, translate, change_axis,
                             rotate_x, rotate_y, rotate_z, C_IDENTITY)
+from .engine.objects import Object3d, nullptr
+from .engine.shaders import Program
+from .engine.vbo import load_obj, VAO
 
 
 class CubePart(Object3d):
@@ -50,6 +52,8 @@ class CubePart(Object3d):
 
 class Cube:
     def __init__(self, shape: Tuple[int, int, int]):
+        self.cube: CubeModel[CubePart] = CubeModel[CubePart](shape)
+
         self.shader = Program("object")
         self.shape: Tuple[int, int, int] = shape
 
@@ -58,21 +62,28 @@ class Cube:
         self.vao_edge = load_obj(models_path / "edge.obj")
         self.vao_flat = load_obj(models_path / "flat.obj")
 
-        self.layers_front: List[List[CubePart]] = [[] for _ in range(self.shape[1])]
-        self.layers_top: List[List[CubePart]] = [[] for _ in range(self.shape[2])]
-        self.layers_left: List[List[CubePart]] = [[] for _ in range(self.shape[0])]
+        self.parts: List[CubePart] = []
 
-        self._create_horizontal_end(0)
-        for y in range(1, self.shape[2] - 1):
-            self._create_vertical_layer(y)
-        self._create_horizontal_end(self.shape[2] - 1)
+        for side, i, j in self.cube.iterate_components():
+            x, y, z = self.cube.get_absolute_coordinates(side, i, j)
+            y = self.shape[2] - 1 - y
+            z = self.shape[1] - 1 - z
 
-    def _create_part(self, x: int, y: int, z: int, vao_type: VAO) -> None:
+            part = self._create_part(x, y, z)
+            self.parts.append(part)
+            self.cube.set_data(Orientation.regular(side), i, j, part)
+
+    def _create_part(self, x: int, y: int, z: int) -> CubePart:
+        num_corners = 0
+
         def add_axis(axis_name: str, value: int, max_value: int, result: List[str]) -> None:
+            nonlocal num_corners
             if value == 0:
                 result.append(axis_name)
+                num_corners += 1
             elif value == max_value - 1:
                 result.append(axis_name + "'")
+                num_corners += 1
 
         position = tuple(p - w // 2 + (1 - w % 2) / 2.0 for w, p in zip(self.shape, (x, y, z)))
         axis: List[str] = []
@@ -80,35 +91,10 @@ class Cube:
         add_axis("y", y, self.shape[2], axis)
         add_axis("z", z, self.shape[1], axis)
 
-        part = CubePart(vao_type, self.shader, position, axis)
-        self.layers_front[self.shape[1] - 1 - z].append(part)
-        self.layers_left[x].append(part)
-        self.layers_top[self.shape[2] - 1 - y].append(part)
-
-    def _create_horizontal_end(self, y: int) -> None:
-        for x in range(self.shape[0]):
-            for z in range(self.shape[1]):
-                x_corner = x == 0 or x == self.shape[0] - 1
-                z_corner = z == 0 or z == self.shape[1] - 1
-                shape = self.vao_flat
-                if x_corner and z_corner:
-                    shape = self.vao_corner
-                elif x_corner or z_corner:
-                    shape = self.vao_edge
-                self._create_part(x, y, z, shape)
-
-    def _create_vertical_layer(self, y: int) -> None:
-        for z in {0, self.shape[1] - 1}:
-            self._create_part(0, y, z, self.vao_edge)
-            self._create_part(self.shape[0] - 1, y, z, self.vao_edge)
-            for x in range(1, self.shape[0] - 1):
-                self._create_part(x, y, z, self.vao_flat)
-
-        for z in range(1, self.shape[1] - 1):
-            self._create_part(0, y, z, self.vao_flat)
-            self._create_part(self.shape[0] - 1, y, z, self.vao_flat)
+        vao = self.vao_flat if num_corners == 0 else self.vao_edge if num_corners == 1 else self.vao_corner
+        part = CubePart(vao, self.shader, position, axis)
+        return part
 
     def draw(self, cam_transform: Array, cam_projection: Array) -> None:
-        for layer in self.layers_front:
-            for part in layer:
-                part.draw(cam_transform, cam_projection)
+        for part in self.parts:
+            part.draw(cam_transform, cam_projection)
