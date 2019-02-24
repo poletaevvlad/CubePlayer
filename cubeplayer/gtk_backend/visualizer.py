@@ -1,13 +1,10 @@
-from gettext import gettext
 from time import time
 
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GLib
-from visualizer import Scene
 
-
-_ = gettext
+from ..visualizer.scene import Scene
 
 
 class CubeVisualizer(Gtk.GLArea):
@@ -39,13 +36,3 @@ class CubeVisualizer(Gtk.GLArea):
     def on_tick(self, _area: Gtk.GLArea, _frame_clock: Gdk.FrameClock, _user_data: None) -> bool:
         self.queue_draw()
         return GLib.SOURCE_CONTINUE
-
-
-class MainWindow(Gtk.ApplicationWindow):
-    def __init__(self, application):
-        super().__init__(application=application)
-        self.set_size_request(800, 600)
-
-        view = CubeVisualizer()
-        self.add(view)
-        view.show()

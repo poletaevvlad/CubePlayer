@@ -1,6 +1,6 @@
 import signal
-from main import Application
 import sys
+from cubeplayer.gtk_backend import Application
 
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
