@@ -10,6 +10,8 @@ struct DirectionalLight{
 
 in vec3 trNormal;
 in vec3 worldPos;
+in vec2 texCoord;
+
 out vec4 fragColor;
 uniform DirectionalLight lights[LIGHTS_COUNT];
 
@@ -40,6 +42,6 @@ void main(){
         specular += computeSpecular(lights[i], normal, viewDir);
     }
 
-    vec3 materialColor = vec3(worldPos / 10 + 0.5);
+    vec3 materialColor = vec3(0, texCoord);
     fragColor = vec4(materialColor * (ambient + diffuse + specular), 1);
 }

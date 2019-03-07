@@ -57,16 +57,17 @@ def create_background() -> VAO:
     return vao
 
 
-def obj_parse_face_descriptor(face: str) -> Tuple[int, int]:
+def obj_parse_face_descriptor(face: str) -> Tuple[int, int, int]:
     face = face.split("/")
     assert len(face) == 3
-    return int(face[0]) - 1, int(face[2]) - 1
+    return int(face[0]) - 1, int(face[1]) - 1, int(face[2]) - 1
 
 
 # noinspection PyCallingNonCallable, PyTypeChecker
 def load_obj(file: Path) -> VAO:
     vertices: List[Tuple[float, ...]] = []
     normals: List[Tuple[float, ...]] = []
+    uvs: List[Tuple[float, ...]] = []
     faces: List[Tuple[Tuple[int, int], ...]] = []
 
     with open(str(file)) as f:
@@ -85,6 +86,9 @@ def load_obj(file: Path) -> VAO:
             elif command == "vn":
                 assert len(arguments) == 3
                 normals.append(tuple(map(float, arguments)))
+            elif command == "vt":
+                assert len(arguments) == 2
+                uvs.append(tuple(map(float, arguments)))
             elif command == "f":
                 if len(arguments) != 3:
                     raise ValueError("Obj file must be triangulated")
@@ -95,16 +99,18 @@ def load_obj(file: Path) -> VAO:
     count = len(vertices)
     vert_buffer = (c_float * (count * 3))(*(t for v in vertices for t in v))
     norm_buffer = (c_float * (count * 3))()
+    uv_buffer = (c_float * (count * 2))()
     indices = (c_ushort * (len(faces) * 3))()
 
-    for i, ((v1, n1), (v2, n2), (v3, n3)) in enumerate(faces):
+    for i, ((v1, uv1, n1), (v2, uv2, n2), (v3, uv3, n3)) in enumerate(faces):
         indices[i * 3: i * 3 + 3] = v1, v2, v3
-        norm_buffer[v1 * 3: v1 * 3 + 3] = normals[n1]
-        norm_buffer[v2 * 3: v2 * 3 + 3] = normals[n2]
-        norm_buffer[v3 * 3: v3 * 3 + 3] = normals[n3]
+        for v, n, uv in [(v1, n1, uv1), (v2, n2, uv2), (v3, n3, uv3)]:
+            norm_buffer[v * 3: v * 3 + 3] = normals[n]
+            uv_buffer[v * 2: v * 2 + 2] = uvs[uv]
 
     vao = VAO()
     vao.array(vert_buffer, (0, 3, GL_FLOAT, GL_FALSE, sizeof(c_float) * 3, c_void_p(0)))
     vao.array(norm_buffer, (1, 3, GL_FLOAT, GL_FALSE, sizeof(c_float) * 3, c_void_p(0)))
+    vao.array(uv_buffer, (2, 2, GL_FLOAT, GL_FALSE, sizeof(c_float) * 2, c_void_p(0)))
     vao.elements(indices)
     return vao

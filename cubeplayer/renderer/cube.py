@@ -40,6 +40,8 @@ class CubePart(Object3d):
         return any(abs(x) > 1e-5 for x in self.temp_rotation)
 
     def draw(self, cam_transform: Array, cam_projection: Array) -> None:
+        if self.vao is None:
+            return
         self.material.use()
         glUniformMatrix4fv(self.material.uniforms["cameraTransform"], 1, GL_TRUE, cam_transform)
         glUniformMatrix4fv(self.material.uniforms["cameraProjection"], 1, GL_TRUE, cam_projection)
@@ -98,7 +100,7 @@ class Cube:
         add_axis("y", y, self.cube.shape[2], axis)
         add_axis("z", z, self.cube.shape[1], axis)
 
-        vao = self.vao_flat if num_corners == 0 else self.vao_edge if num_corners == 1 else self.vao_corner
+        vao = self.vao_flat if num_corners == 1 else self.vao_edge if num_corners == 2 else self.vao_corner
         part = CubePart(vao, self.shader, position, axis)
         return part
 
