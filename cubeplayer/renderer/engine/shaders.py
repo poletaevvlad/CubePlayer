@@ -1,5 +1,5 @@
 from OpenGL.GL import *
-from typing import Dict
+from typing import Dict, Union, Tuple
 
 from pathlib import Path
 
@@ -61,7 +61,10 @@ class Uniforms:
         self.uniforms: Dict[str, GLint] = dict()
         self.program: Program = program
 
-    def __getitem__(self, item: str) -> GLint:
+    def __getitem__(self, item: Union[str, Tuple[str, int]]) -> GLint:
+        if not isinstance(item, str):
+            item = f"{item[0]}[{item[1]}]"
+
         if item in self.uniforms:
             return self.uniforms[item]
         location = glGetUniformLocation(self.program.program_id, item)

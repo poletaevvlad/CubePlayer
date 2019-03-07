@@ -16,6 +16,8 @@ out vec4 fragColor;
 uniform DirectionalLight lights[LIGHTS_COUNT];
 uniform sampler2D tex;
 
+uniform vec3 colors[];
+
 
 vec3 computeDuffuse(DirectionalLight light, vec3 normal){
     float diffuse = max(dot(normal, light.direction), 0.0);
@@ -27,6 +29,11 @@ vec3 computeSpecular(DirectionalLight light, vec3 normal, vec3 viewDirection){
     vec3 reflectDirection = reflect(-light.direction, normal);
     float specular = pow(max(dot(viewDirection, reflectDirection), 0.0), 10);
     return specular * light.color;
+}
+
+
+vec3 blendColors(vec3 color1, vec3 color2, float alpha){
+    return color2 * alpha + color1 * (1 - alpha);
 }
 
 
@@ -43,6 +50,13 @@ void main(){
         specular += computeSpecular(lights[i], normal, viewDir);
     }
 
-    vec3 materialColor = texture(tex, texCoord).rgb;
+
+    vec3 stickers_result = texture(tex, texCoord).rgb;
+
+    vec3 materialColor = vec3(1, 1, 1);
+    materialColor = blendColors(materialColor, colors[0], stickers_result.r);
+    materialColor = blendColors(materialColor, colors[1], stickers_result.g);
+    materialColor = blendColors(materialColor, colors[2], stickers_result.b);
+
     fragColor = vec4(materialColor * (ambient + diffuse + specular), 1);
 }

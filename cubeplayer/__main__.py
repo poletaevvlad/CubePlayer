@@ -23,7 +23,7 @@ def run_gtk(formula: List[Action]):
 
 @click.command()
 @click.option("-b", "backend", type=click.Choice(["gtk"]), default="gtk")
-@click.argument("formula", type=CubeFormulaParamType())
+@click.argument("formula", type=CubeFormulaParamType(), default="")
 def main(formula: List[Action], backend: str) -> None:
     run_gtk(formula)
 

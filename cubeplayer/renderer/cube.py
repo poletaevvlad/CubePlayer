@@ -1,11 +1,11 @@
 from ctypes import Array
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 
 from OpenGL.GL import *
 
 from libcube.cube import Cube as CubeModel
-from libcube.orientation import Orientation
+from libcube.orientation import Orientation, Color, Side
 from .engine.linalg import (Matrix, translate, change_axis,
                             rotate_x, rotate_y, rotate_z, C_IDENTITY)
 from .engine.objects import Object3d, nullptr
@@ -21,12 +21,23 @@ class CubePart(Object3d):
         DirectionalLight((0.5, 0.5, 1.0), (-1.0, 0.0, 1.0))
     ]
 
+    STICKER_COLORS: Dict[Color, Tuple[float, float, float]] = {
+        Color.WHITE: (0.8, 0.8, 0.8),
+        Color.RED: (1.0, 0.0, 0.0),
+        Color.BLUE: (0.0, 0.0, 1.0),
+        Color.ORANGE: (1.0, 0.5, 0.0),
+        Color.GREEN: (0.0, 1.0, 0.0),
+        Color.YELLOW: (1.0, 1.0, 0.0),
+        None: (0, 0, 0)
+    }
+
     def __init__(self, vao: VAO, material: Program, init_offset: Tuple[float, ...],
-                 axis_flip: List[str]):
+                 axis_flip: List[str], colors: List[Color]):
         super(CubePart, self).__init__(vao, material)
         self.object_transform: Matrix = (translate(*init_offset) *
                                          change_axis(*axis_flip))
         self.temp_rotation: List[float] = [0.0, 0.0, 0.0]
+        self.colors: List[colors] = colors
 
     def set_temp_rotation(self, x: float = 0, y: float = 0, z: float = 0) -> None:
         self.temp_rotation = [x, y, z]
@@ -37,17 +48,17 @@ class CubePart(Object3d):
         self.object_transform = rotation * self.object_transform
         self.temp_rotation = [0, 0, 0]
 
-    def _has_temp_rotation(self) -> bool:
-        return any(abs(x) > 1e-5 for x in self.temp_rotation)
-
     def draw(self) -> None:
         glUniformMatrix4fv(self.material.uniforms["objectTransform"], 1, GL_TRUE, self.object_transform.to_ctypes())
-        if self._has_temp_rotation():
+        if any(abs(x) > 1e-5 for x in self.temp_rotation):
             rotation = (rotate_x(self.temp_rotation[0]) * rotate_y(self.temp_rotation[1]) *
                         rotate_z(self.temp_rotation[2])).to_ctypes()
         else:
             rotation = C_IDENTITY
         glUniformMatrix4fv(self.material.uniforms["tempTransform"], 1, GL_TRUE, rotation)
+
+        for i, color in enumerate(self.colors):
+            glUniform3f(self.material.uniforms["colors", i], *CubePart.STICKER_COLORS[color])
 
         self.vao.bind()
         glDrawElements(GL_TRIANGLES, self.vao.elements_count, GL_UNSIGNED_SHORT, nullptr)
@@ -70,6 +81,32 @@ class Cube:
 
         self.parts: List[CubePart] = self._generate()
 
+    def _get_colors(self, side: Side, i: int, j: int) -> List[Color]:
+        orientation = Orientation.regular(side)
+        front_side = self.cube.get_side(orientation)
+        colors = [front_side.colors[i, j]]
+        if i == 0 or i == front_side.rows - 1:
+            if i == 0:
+                top_side = self.cube.get_side(orientation.to_top)
+                color = top_side.colors[top_side.rows - 1, j]
+            else:
+                bottom_side = self.cube.get_side(orientation.to_bottom)
+                color = bottom_side.colors[0, j]
+            colors.insert(0 if side in {Side.FRONT, Side.BACK} else 1, color)
+
+        if j == 0 or j == front_side.columns - 1:
+            if j == 0:
+                left_side = self.cube.get_side(orientation.to_left)
+                color = left_side.colors[i, left_side.columns - 1]
+            else:
+                right_side = self.cube.get_side(orientation.to_right)
+                color = right_side.colors[i, 0]
+            colors.insert(0, color)
+
+        if len(colors) == 3:
+            return [colors[2], colors[0], colors[1]]
+        return colors
+
     def _generate(self) -> List[CubePart]:
         parts = []
         for side, i, j in self.cube.iterate_components():
@@ -77,12 +114,12 @@ class Cube:
             y = self.cube.shape[2] - 1 - y
             z = self.cube.shape[1] - 1 - z
 
-            part = self._create_part(x, y, z)
+            part = self._create_part(x, y, z, self._get_colors(side, i, j))
             parts.append(part)
             self.cube.set_data(Orientation.regular(side), i, j, part)
         return parts
 
-    def _create_part(self, x: int, y: int, z: int) -> CubePart:
+    def _create_part(self, x: int, y: int, z: int, colors: List[Color]) -> CubePart:
         num_corners = 0
 
         def add_axis(axis_name: str, value: int, max_value: int, result: List[str]) -> None:
@@ -101,7 +138,7 @@ class Cube:
         add_axis("z", z, self.cube.shape[1], axis)
 
         vao = self.vao_flat if num_corners == 1 else self.vao_edge if num_corners == 2 else self.vao_corner
-        part = CubePart(vao, self.shader, position, axis)
+        part = CubePart(vao, self.shader, position, axis, colors)
         return part
 
     def draw(self, cam_transform: Array, cam_projection: Array) -> None:
