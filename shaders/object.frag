@@ -14,6 +14,7 @@ in vec2 texCoord;
 
 out vec4 fragColor;
 uniform DirectionalLight lights[LIGHTS_COUNT];
+uniform sampler2D tex;
 
 
 vec3 computeDuffuse(DirectionalLight light, vec3 normal){
@@ -42,6 +43,6 @@ void main(){
         specular += computeSpecular(lights[i], normal, viewDir);
     }
 
-    vec3 materialColor = vec3(0, texCoord);
+    vec3 materialColor = texture(tex, texCoord).rgb;
     fragColor = vec4(materialColor * (ambient + diffuse + specular), 1);
 }

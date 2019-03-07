@@ -12,6 +12,7 @@ from .engine.objects import Object3d, nullptr
 from .engine.shaders import Program
 from .engine.vbo import load_obj, VAO
 from .engine.light import DirectionalLight
+from .engine.texture import Texture
 
 
 class CubePart(Object3d):
@@ -39,14 +40,8 @@ class CubePart(Object3d):
     def _has_temp_rotation(self) -> bool:
         return any(abs(x) > 1e-5 for x in self.temp_rotation)
 
-    def draw(self, cam_transform: Array, cam_projection: Array) -> None:
-        if self.vao is None:
-            return
-        self.material.use()
-        glUniformMatrix4fv(self.material.uniforms["cameraTransform"], 1, GL_TRUE, cam_transform)
-        glUniformMatrix4fv(self.material.uniforms["cameraProjection"], 1, GL_TRUE, cam_projection)
+    def draw(self) -> None:
         glUniformMatrix4fv(self.material.uniforms["objectTransform"], 1, GL_TRUE, self.object_transform.to_ctypes())
-
         if self._has_temp_rotation():
             rotation = (rotate_x(self.temp_rotation[0]) * rotate_y(self.temp_rotation[1]) *
                         rotate_z(self.temp_rotation[2])).to_ctypes()
@@ -70,17 +65,21 @@ class Cube:
         self.vao_corner = load_obj(models_path / "corner.obj")
         self.vao_edge = load_obj(models_path / "edge.obj")
         self.vao_flat = load_obj(models_path / "flat.obj")
+        self.texture = Texture(models_path / "tex.jpg")
 
-        self.parts: List[CubePart] = []
+        self.parts: List[CubePart] = self._generate()
 
+    def _generate(self) -> List[CubePart]:
+        parts = []
         for side, i, j in self.cube.iterate_components():
             x, y, z = self.cube.get_absolute_coordinates(side, i, j)
             y = self.cube.shape[2] - 1 - y
             z = self.cube.shape[1] - 1 - z
 
             part = self._create_part(x, y, z)
-            self.parts.append(part)
+            parts.append(part)
             self.cube.set_data(Orientation.regular(side), i, j, part)
+        return parts
 
     def _create_part(self, x: int, y: int, z: int) -> CubePart:
         num_corners = 0
@@ -105,5 +104,10 @@ class Cube:
         return part
 
     def draw(self, cam_transform: Array, cam_projection: Array) -> None:
+        self.shader.use()
+        glUniformMatrix4fv(self.shader.uniforms["cameraTransform"], 1, GL_TRUE, cam_transform)
+        glUniformMatrix4fv(self.shader.uniforms["cameraProjection"], 1, GL_TRUE, cam_projection)
+        self.texture.activate(0)
+        glUniform1i(self.shader.uniforms["tex"], 0)
         for part in self.parts:
-            part.draw(cam_transform, cam_projection)
+            part.draw()
