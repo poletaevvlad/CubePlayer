@@ -15,10 +15,18 @@ class CubeVisualizer(Gtk.GLArea):
         self.set_has_depth_buffer(True)
         self.connect("realize", self.on_realize)
         self.connect("render", self.on_render)
+
+        self.set_events(Gdk.EventMask.BUTTON1_MOTION_MASK | Gdk.EventMask.BUTTON_PRESS_MASK)
+        self.connect("motion_notify_event", self.on_motion)
+        self.connect("button_press_event", self.on_button_press)
+
         self.add_tick_callback(self.on_tick, None)
         self.scene: Scene = None
         self.last_frame_time = None
         self.init_formula: Optional[List[Action]] = None
+
+        self.drag_x: float = float("nan")
+        self.drag_y: float = float("nan")
 
     def on_realize(self, _area: Gtk.GLArea) -> None:
         ctx = self.get_context()
@@ -48,3 +56,14 @@ class CubeVisualizer(Gtk.GLArea):
             self.init_formula = formula
         else:
             self.scene.run_formula(formula)
+
+    def on_motion(self, _widget: Gtk.Widget, event: Gdk.EventMotion):
+        delta_x = event.x - self.drag_x
+        delta_y = event.y - self.drag_y
+        self.scene.rotate(delta_x, delta_y)
+        self.drag_x = event.x
+        self.drag_y = event.y
+
+    def on_button_press(self, _widget: Gtk.Widget, event: Gdk.EventButton):
+        self.drag_x = event.x
+        self.drag_y = event.y

@@ -35,3 +35,7 @@ class Scene:
     def run_formula(self, formula: List[Action]) -> None:
         for action in formula:
             self.cube_animator.enqueue(action)
+
+    def rotate(self, delta_x: float, delta_y: float) -> None:
+        self.camera.rotation[1] -= delta_x * 0.01
+        self.camera.rotation[0] -= delta_y * 0.01
