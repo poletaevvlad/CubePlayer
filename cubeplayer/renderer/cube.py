@@ -65,7 +65,8 @@ class Cube:
         self.vao_corner = load_obj(models_path / "corner.obj")
         self.vao_edge = load_obj(models_path / "edge.obj")
         self.vao_flat = load_obj(models_path / "flat.obj")
-        self.texture = Texture(models_path / "tex.jpg")
+
+        self.stickers_texture = Texture(models_path / "stickers.png", flip=True)
 
         self.parts: List[CubePart] = self._generate()
 
@@ -107,7 +108,9 @@ class Cube:
         self.shader.use()
         glUniformMatrix4fv(self.shader.uniforms["cameraTransform"], 1, GL_TRUE, cam_transform)
         glUniformMatrix4fv(self.shader.uniforms["cameraProjection"], 1, GL_TRUE, cam_projection)
-        self.texture.activate(0)
+
+        self.stickers_texture.activate(0)
         glUniform1i(self.shader.uniforms["tex"], 0)
+
         for part in self.parts:
             part.draw()
