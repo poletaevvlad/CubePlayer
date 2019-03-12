@@ -16,11 +16,11 @@ class CubeVisualizer(Gtk.GLArea):
         self.connect("realize", self.on_realize)
         self.connect("render", self.on_render)
 
-        self.set_events(Gdk.EventMask.BUTTON1_MOTION_MASK | Gdk.EventMask.BUTTON_PRESS_MASK)
-        self.connect("motion_notify_event", self.on_motion)
-        self.connect("button_press_event", self.on_button_press)
+        # self.set_events(Gdk.EventMask.BUTTON1_MOTION_MASK | Gdk.EventMask.BUTTON_PRESS_MASK)
+        # self.connect("motion_notify_event", self.on_motion)
+        # self.connect("button_press_event", self.on_button_press)
 
-        self.add_tick_callback(self.on_tick, None)
+        # self.add_tick_callback(self.on_tick, None)
         self.scene: Scene = None
         self.last_frame_time = None
         self.init_formula: Optional[List[Action]] = None
