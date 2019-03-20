@@ -41,15 +41,16 @@ class Timeline(Gtk.DrawingArea):
         border = context.get_color(Gtk.StateFlags.BACKDROP)
         ctx.set_source_rgba(*border)
         ctx.set_line_width(1)
-        for index in range(min_index, max_index):
+        for index in range(min_index, max_index + 1):
             x = int(offset + self.slot_width * index)
             ctx.move_to(x + 0.5, 10)
             ctx.line_to(x + 0.5, height)
 
-            text = self.data.get_text(index)
-            text_extents: cairo.TextExtents = ctx.text_extents(text)
-            ctx.move_to(x + self.slot_width / 2 - text_extents.width / 2, 12)
-            ctx.show_text(text)
+            if index < max_index:
+                text = self.data.get_text(index)
+                text_extents: cairo.TextExtents = ctx.text_extents(text)
+                ctx.move_to(x + self.slot_width / 2 - text_extents.width / 2, 12)
+                ctx.show_text(text)
         ctx.stroke()
 
         marker_color = context.get_color(Gtk.StateFlags.LINK)
