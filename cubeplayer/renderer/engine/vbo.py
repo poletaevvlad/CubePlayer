@@ -14,13 +14,13 @@ class VAO:
     def array(self, data: Array, *attribs: Tuple[GLuint, GLint, GLenum, GLboolean, GLsizei, GLsizei]):
         self.bind()
         vbo_id: GLuint = glGenBuffers(1)
+        glBindVertexArray(self.vao_id)
         glBindBuffer(GL_ARRAY_BUFFER, vbo_id)
         glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW)
 
         for index, size, type, normalized, stride, pointer in attribs:
             glEnableVertexAttribArray(index)
             glVertexAttribPointer(index, size, type, normalized, stride, pointer)
-
         self.arrays.append(vbo_id)
 
     def elements(self, indices: Array):

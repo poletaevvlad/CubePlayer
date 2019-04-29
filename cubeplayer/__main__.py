@@ -1,31 +1,40 @@
 from libcube.actions import Action
 from cubeplayer.parsing import CubeFormulaParamType
+from cubeplayer.renderer.scene import Scene
 
 from typing import List
-import signal
 
 import click
+from OpenGL.GLUT import *
 
 
-def run_gtk(formula: List[Action]):
-    import gi
-    gi.require_version("Gtk", "3.0")
-    gi.require_version("GtkSource", "3.0")
-    from gi.repository import Gtk
-    from cubeplayer.gtk_backend import MainWindow
+def display(scene: Scene):
+    width = glutGet(GLUT_WINDOW_WIDTH)
+    height = glutGet(GLUT_WINDOW_HEIGHT)
 
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-    window = MainWindow(formula)
-    window.show()
-    window.connect("destroy", Gtk.main_quit)
-    Gtk.main()
+    scene.render(width, height)
+    glutSwapBuffers()
+    glutPostRedisplay()
+
+
+def run_glut():
+    glutInit(sys.argv)
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE)
+    glutInitContextVersion(3, 3)
+    glutInitContextProfile(GLUT_CORE_PROFILE)
+    glutInitWindowSize(640, 480)
+    glutCreateWindow("CubePlayer")
+
+
+    scene = Scene()
+    glutDisplayFunc(lambda: display(scene))
+    glutMainLoop()
 
 
 @click.command()
-@click.option("-b", "backend", type=click.Choice(["gtk"]), default="gtk")
 @click.argument("formula", type=CubeFormulaParamType(), default="")
-def main(formula: List[Action], backend: str) -> None:
-    run_gtk(formula)
+def main(formula: List[Action]) -> None:
+    run_glut()
 
 
 if __name__ == "__main__":

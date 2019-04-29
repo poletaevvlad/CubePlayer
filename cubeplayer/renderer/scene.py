@@ -17,9 +17,8 @@ class Scene:
         glDisable(GL_DEPTH_TEST)
         self.background.draw()
 
-        glEnable(GL_DEPTH_TEST)
         glClear(GL_DEPTH_BUFFER_BIT)
-
+        glEnable(GL_DEPTH_TEST)
         camera_transform = self.camera.position_transform().to_ctypes()
         camera_perspective = self.camera.perspective_transform(width, height).to_ctypes()
         self.cube.draw(camera_transform, camera_perspective)
