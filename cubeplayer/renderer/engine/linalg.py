@@ -82,6 +82,19 @@ def rotate_z(angle: float) -> Matrix:
     ])
 
 
+def scale(x: float, y: float, z: float) -> Matrix:
+    return Matrix([
+        [x, 0, 0, 0],
+        [0, y, 0, 0],
+        [0, 0, z, 0],
+        [0, 0, 0, 1]
+    ])
+
+
+def uscale(f: float):
+    return scale(f, f, f)
+
+
 def change_axis(*axis: str) -> Matrix:
     axis_to_index = dict(x=0, y=1, z=2)
     matrix = Matrix([

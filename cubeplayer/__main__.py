@@ -13,7 +13,7 @@ import signal
 @click.argument("formula", type=CubeFormulaParamType(), default="")
 def main(formula: List[Action]) -> None:
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    window = GlutWindow(Cube((6, 6, 6)))
+    window = GlutWindow(Cube((2, 2, 2)))
     for action in formula:
         window.cube_animator.enqueue(action)
     window.run()

@@ -8,7 +8,7 @@ from libcube.cube import Cube as CubeModel
 
 class Scene:
     def __init__(self, cube: CubeModel[CubePart]):
-        self.camera = Camera()
+        self.camera = Camera(scale=5 / max(cube.shape))
         self.camera.rotation = [-0.3, 0.5, 0]
 
         self.background: Background = Background((0.4, 0.4, 0.4), (0.2, 0.2, 0.2))
