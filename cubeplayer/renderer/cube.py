@@ -65,8 +65,8 @@ class CubePart(Object3d):
 
 
 class Cube:
-    def __init__(self, shape: Tuple[int, int, int]):
-        self.cube: CubeModel[CubePart] = CubeModel[CubePart](shape)
+    def __init__(self, cube: CubeModel[CubePart]):
+        self.cube: CubeModel[CubePart] = cube
 
         self.shader = Program("object")
         self.shader.use()

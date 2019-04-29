@@ -1,17 +1,18 @@
 from OpenGL.GL import *
 
-from .cube import Cube
+from .cube import Cube, CubePart
 from .engine.camera import Camera
 from .engine.objects import Background
+from libcube.cube import Cube as CubeModel
 
 
 class Scene:
-    def __init__(self):
+    def __init__(self, cube: CubeModel[CubePart]):
         self.camera = Camera()
         self.camera.rotation = [-0.3, 0.5, 0]
 
         self.background: Background = Background((0.4, 0.4, 0.4), (0.2, 0.2, 0.2))
-        self.cube = Cube((5, 5, 5))
+        self.cube = Cube(cube)
 
     def render(self, width: int, height: int) -> None:
         glDisable(GL_DEPTH_TEST)
