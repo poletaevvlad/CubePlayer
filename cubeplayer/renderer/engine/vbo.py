@@ -47,7 +47,7 @@ class VAO:
 
 
 # noinspection PyCallingNonCallable,PyTypeChecker
-def create_background() -> VAO:
+def create_quad() -> VAO:
     vertices = (c_float * 8)(-1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0)
     indices = (c_ushort * 6)(1, 0, 2, 2, 0, 3)
 

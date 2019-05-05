@@ -5,7 +5,7 @@ from typing import Tuple
 from OpenGL.GL import *
 
 from .shaders import Program
-from .vbo import VAO, create_background
+from .vbo import VAO, create_quad
 
 ColorType = Tuple[float, float, float]
 nullptr = c_void_p(0)
@@ -20,7 +20,7 @@ class Object3d(ABC):
 class Background(Object3d):
     # noinspection PyTypeChecker, PyCallingNonCallable
     def __init__(self, gradient_to: ColorType, gradient_from: ColorType):
-        vao = create_background()
+        vao = create_quad()
         shader = Program("background")
         super(Background, self).__init__(vao, shader)
 
