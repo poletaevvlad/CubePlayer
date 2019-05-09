@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Dict
 from OpenGL.GL import *
 
-from .objects import nullptr
 from .vbo import create_quad
 from .shaders import Program
 
@@ -91,9 +90,6 @@ class FontFace:
 
             glActiveTexture(GL_TEXTURE0)
             glBindTexture(GL_TEXTURE_2D, char.texture_id)
-
-            self.vao.bind()
-            glDrawElements(GL_TRIANGLES, self.vao.elements_count, GL_UNSIGNED_SHORT,
-                           nullptr)
+            self.vao.draw()
 
             x += char.advance

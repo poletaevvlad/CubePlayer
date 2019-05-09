@@ -1,5 +1,5 @@
 from abc import ABC
-from ctypes import c_float, c_void_p
+from ctypes import c_float
 from typing import Tuple
 
 from OpenGL.GL import *
@@ -8,7 +8,6 @@ from .shaders import Program
 from .vbo import VAO, create_quad
 
 ColorType = Tuple[float, float, float]
-nullptr = c_void_p(0)
 
 
 class Object3d(ABC):
@@ -31,5 +30,4 @@ class Background(Object3d):
 
     def draw(self) -> None:
         self.material.use()
-        self.vao.bind()
-        glDrawElements(GL_TRIANGLES, self.vao.elements_count, GL_UNSIGNED_SHORT, nullptr)
+        self.vao.draw()

@@ -4,6 +4,9 @@ from typing import List, Tuple
 from pathlib import Path
 
 
+nullptr = c_void_p(0)
+
+
 class VAO:
     def __init__(self):
         self.vao_id = glGenVertexArrays(1)
@@ -34,6 +37,10 @@ class VAO:
     def bind(self):
         glBindVertexArray(self.vao_id)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.elements_buffer)
+
+    def draw(self):
+        self.bind()
+        glDrawElements(GL_TRIANGLES, self.elements_count, GL_UNSIGNED_SHORT, nullptr)
 
     def destroy(self):
         glBindVertexArray(0)
