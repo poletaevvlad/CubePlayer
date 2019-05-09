@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 from libcube.actions import Action
 from libcube.parser import ParsingError, parse_actions
+from libcube.orientation import Color
 
 import click
 
@@ -32,3 +33,25 @@ class CubeFormulaParamType(click.ParamType):
             column = e.column
             value, column = construct_error_message(value, column)
             self.fail("".join([str(e), "\n", " " * 7, value, "\n", " " * (7 + column), "^"]), param, ctx)
+
+
+class SideConfigurationType(click.ParamType):
+    name = "side"
+
+    SYMBOLS = {"R": Color.RED, "G": Color.GREEN, "B": Color.BLUE,
+               "W": Color.WHITE, "Y": Color.YELLOW, "O": Color.ORANGE}
+
+    def convert(self, value: str, param: str, ctx: click.Context) -> List[List[Color]]:
+        result: List[List[Color]] = []
+        lines = value.upper().split("/")
+        for line in lines:
+            result_line: List[Color] = []
+            if len(line) != len(lines[0]):
+                self.fail("Inconsistent line length", param, ctx)
+            for symbol in line:
+                if symbol not in SideConfigurationType.SYMBOLS:
+                    self.fail(f"Unknown color: `{symbol}`")
+                else:
+                    result_line.append(SideConfigurationType.SYMBOLS[symbol])
+            result.append(result_line)
+        return result
