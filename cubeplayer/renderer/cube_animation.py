@@ -96,7 +96,6 @@ class CubeAnimationManager:
             delta_angle = -math.pi / 2
         else:
             delta_angle = math.pi / 2
-        print(action.axis_side)
         if action.axis_side in {Side.FRONT, Side.BACK}:
             axis_index = 2
         elif action.axis_side in {Side.LEFT, Side.RIGHT}:
@@ -121,7 +120,7 @@ class CubeAnimationManager:
         self.is_played = True
         animation = None
         while len(self.queue) > 0 and animation is None:
-            action = self.queue.pop()
+            action = self.queue.popleft()
             if isinstance(action, Turn):
                 animation = self._create_turn_animation(action)
             elif isinstance(action, Rotate):
