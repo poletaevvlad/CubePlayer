@@ -69,10 +69,19 @@ class FontFace:
         return character
 
     def draw(self, screen_width: int, screen_height: int, x: int, y: int,
-             text: str):
+             text: str, align: float = 0.0):
 
         self.shader.use()
         glUniform2f(self.shader.uniforms["screen_size"], screen_width, screen_height)
+
+        prev_c = None
+        measured_width = 0
+        for c in text:
+            if prev_c is not None:
+                measured_width += self.face.get_kerning(prev_c, c).x
+            prev_c = c
+            measured_width = self.get_character(c).advance
+        x -= round(measured_width * align)
 
         prev_c = None
         for c in text:

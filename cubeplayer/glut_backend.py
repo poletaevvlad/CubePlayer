@@ -1,3 +1,5 @@
+from typing import List
+
 from OpenGL.GLUT import *
 from .renderer.scene import Scene
 from .renderer.animation import Animator
@@ -7,7 +9,7 @@ import time
 
 
 class GlutWindow:
-    def __init__(self, cube: Cube):
+    def __init__(self, cube: Cube, formula: List[str]):
         self.is_rotating: bool = False
         self.mouse_x: int = 0
         self.mouse_y: int = 0
@@ -20,9 +22,12 @@ class GlutWindow:
         glutInitWindowSize(640, 480)
         glutCreateWindow("CubePlayer")
 
-        self.scene = Scene(cube)
+        self.scene = Scene(cube, formula)
         self.animator = Animator()
-        self.cube_animator = CubeAnimationManager(self.scene.cube, self.animator, self.scene.camera)
+        self.cube_animator = CubeAnimationManager(self.scene.cube,
+                                                  self.animator,
+                                                  self.scene.camera,
+                                                  self.scene.update_ui_position)
         glutDisplayFunc(self._display)
         glutMouseFunc(self._mouse_handler)
         glutMotionFunc(self._mouse_motion)

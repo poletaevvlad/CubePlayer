@@ -1,7 +1,7 @@
 import math
 import sys
 from collections import deque
-from typing import Deque, Set
+from typing import Deque, Set, Callable, Optional
 
 from libcube.actions import Action, Turn
 from libcube.orientation import Side, Orientation
@@ -12,13 +12,16 @@ from .engine.camera import Camera
 
 
 class CubeAnimationManager:
-    def __init__(self, cube: Cube, animator: Animator, camera: Camera):
+    def __init__(self, cube: Cube, animator: Animator, camera: Camera,
+                 position_callback: Optional[Callable[[float], None]] = None):
         self.queue: Deque[Action] = deque()
         self.cube: Cube = cube
         self.orientation: Orientation = Orientation()
         self.animator: Animator = animator
         self.camera: Camera = camera
         self.is_played: bool = False
+        self.position_callback = position_callback
+        self.completed_count = 0
 
     def enqueue(self, action: Action) -> None:
         self.queue.append(action)
@@ -76,8 +79,14 @@ class CubeAnimationManager:
             for component in components:
                 component.apply_temp_rotation()
             self._run_animation()
+            self.completed_count += 1
 
-        return FloatAnimation(0.0, angle, execution_callback, ease_in_out_quad, completion_callback)
+        def fraction_callback(fraction):
+            if self.position_callback is not None:
+                self.position_callback(self.completed_count + fraction)
+
+        return FloatAnimation(0.0, angle, execution_callback, ease_in_out_quad, completion_callback,
+                              fraction_callback=fraction_callback)
 
     def _run_animation(self) -> None:
         self.is_played = True

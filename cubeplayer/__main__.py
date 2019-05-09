@@ -1,4 +1,5 @@
 from libcube.actions import Action
+from libcube.parser import get_action_representation
 from libcube.cube import Cube
 from libcube.orientation import Orientation
 from cubeplayer.parsing import CubeFormulaParamType
@@ -22,7 +23,7 @@ def main(formula: List[Action], dim: Tuple[int, int, int], shuffle: List[Action]
     for shuffle_action in shuffle:
         orientation = shuffle_action.perform(cube, orientation)
 
-    window = GlutWindow(cube)
+    window = GlutWindow(cube, list(map(get_action_representation, formula)))
     for action in formula:
         window.cube_animator.enqueue(action)
     window.run()

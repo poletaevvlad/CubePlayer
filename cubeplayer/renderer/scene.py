@@ -1,3 +1,5 @@
+from typing import List
+
 from OpenGL.GL import *
 
 from libcube.cube import Cube as CubeModel
@@ -8,13 +10,13 @@ from .engine.objects import Background
 
 
 class Scene:
-    def __init__(self, cube: CubeModel[CubePart]):
+    def __init__(self, cube: CubeModel[CubePart], formula: List[str]):
         self.camera = Camera(scale=5 / max(cube.shape))
         self.camera.rotation = [-0.3, 0.5, 0]
 
         self.background: Background = Background((0.4, 0.4, 0.4), (0.2, 0.2, 0.2))
         self.cube = Cube(cube)
-        self.ui = FormulaUI("Hello_world")
+        self.ui = FormulaUI(formula)
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -29,8 +31,12 @@ class Scene:
         camera_perspective = self.camera.perspective_transform(width, height).to_ctypes()
         self.cube.draw(camera_transform, camera_perspective)
 
+        glDisable(GL_DEPTH_TEST)
         self.ui.render(width, height)
 
     def rotate(self, delta_x: float, delta_y: float) -> None:
         self.camera.rotation[1] -= delta_x * 0.01
         self.camera.rotation[0] -= delta_y * 0.01
+
+    def update_ui_position(self, position):
+        self.ui.position = position
