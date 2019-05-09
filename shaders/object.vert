@@ -8,13 +8,14 @@ uniform mat4 cameraTransform;
 uniform mat4 cameraProjection;
 uniform mat4 objectTransform;
 uniform mat4 tempTransform;
+uniform mat4 cubeTransform;
 
 out vec3 trNormal;
 out vec3 worldPos;
 out vec2 texCoord;
 
 void main(){
-    mat4 transform = cameraTransform * tempTransform * objectTransform;
+    mat4 transform = cameraTransform * cubeTransform * tempTransform * objectTransform;
 
     vec4 camaraSpacePosition = transform * vec4(position, 1);
     gl_Position = cameraProjection * camaraSpacePosition;

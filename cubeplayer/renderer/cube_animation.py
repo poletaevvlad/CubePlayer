@@ -3,7 +3,7 @@ import sys
 from collections import deque
 from typing import Deque, Set, Callable, Optional
 
-from libcube.actions import Action, Turn
+from libcube.actions import Action, Turn, Rotate
 from libcube.orientation import Side, Orientation
 from .animation import Animator, FloatAnimation, Animation
 from .animation.easing import ease_in_out_quad
@@ -45,6 +45,10 @@ class CubeAnimationManager:
             orientation = orientation.to_top
         return components
 
+    def _fraction_callback(self, fraction):
+        if self.position_callback is not None:
+            self.position_callback(self.completed_count + fraction)
+
     def _create_turn_animation(self, action: Turn) -> Animation:
         turns = action.turns
         if turns == 3:
@@ -81,12 +85,37 @@ class CubeAnimationManager:
             self._run_animation()
             self.completed_count += 1
 
-        def fraction_callback(fraction):
-            if self.position_callback is not None:
-                self.position_callback(self.completed_count + fraction)
+        return FloatAnimation(0.0, angle, execution_callback, ease_in_out_quad,
+                              completion_callback,
+                              fraction_callback=self._fraction_callback)
 
-        return FloatAnimation(0.0, angle, execution_callback, ease_in_out_quad, completion_callback,
-                              fraction_callback=fraction_callback)
+    def _create_rotate_animation(self, action: Rotate):
+        if action.twice:
+            delta_angle = math.pi
+        elif action.axis_side in {Side.BACK, Side.LEFT, Side.BOTTOM}:
+            delta_angle = -math.pi / 2
+        else:
+            delta_angle = math.pi / 2
+        print(action.axis_side)
+        if action.axis_side in {Side.FRONT, Side.BACK}:
+            axis_index = 2
+        elif action.axis_side in {Side.LEFT, Side.RIGHT}:
+            axis_index = 0
+        else:
+            axis_index = 1
+
+        def execution_callback(value):
+            self.cube.temp_rotation[axis_index] = value
+
+        def completion_callback():
+            self.cube.apply_rotation()
+            self._run_animation()
+            self.completed_count += 1
+
+        current_rotation = self.cube.temp_rotation[axis_index]
+        return FloatAnimation(current_rotation, current_rotation + delta_angle,
+                              execution_callback, ease_in_out_quad,
+                              completion_callback, self._fraction_callback)
 
     def _run_animation(self) -> None:
         self.is_played = True
@@ -95,6 +124,8 @@ class CubeAnimationManager:
             action = self.queue.pop()
             if isinstance(action, Turn):
                 animation = self._create_turn_animation(action)
+            elif isinstance(action, Rotate):
+                animation = self._create_rotate_animation(action)
             else:
                 print("Unknown action", file=sys.stderr)
             self.orientation = action.perform(self.cube.cube, self.orientation)

@@ -6,13 +6,13 @@ from OpenGL.GL import *
 
 from libcube.cube import Cube as CubeModel
 from libcube.orientation import Orientation, Color, Side
-from .engine.linalg import (Matrix, translate, change_axis,
-                            rotate_x, rotate_y, rotate_z, C_IDENTITY)
+from .engine.linalg import Matrix, translate, change_axis, C_IDENTITY, IDENTITY
 from .engine.objects import Object3d
 from .engine.shaders import Program
 from .engine.vbo import load_obj, VAO
 from .engine.light import DirectionalLight
 from .engine.texture import Texture
+from .engine.linalg import rotate_x, rotate_y, rotate_z
 
 
 class CubePart(Object3d):
@@ -75,10 +75,12 @@ class Cube:
         self.vao_corner = load_obj(models_path / "corner.obj")
         self.vao_edge = load_obj(models_path / "edge.obj")
         self.vao_flat = load_obj(models_path / "flat.obj")
-
         self.stickers_texture = Texture.load("stickers", flip=True)
 
         self.parts: List[CubePart] = self._generate()
+
+        self.rotation = IDENTITY
+        self.temp_rotation = [0, 0, 0]
 
     def _get_colors(self, side: Side, i: int, j: int) -> List[Color]:
         orientation = Orientation.regular(side)
@@ -142,6 +144,13 @@ class Cube:
 
     def draw(self, cam_transform: Array, cam_projection: Array) -> None:
         self.shader.use()
+
+        rotation = self.rotation
+        if self.temp_rotation != [0, 0, 0]:
+            rotation *= rotate_x(self.temp_rotation[0]) * \
+                        rotate_y(self.temp_rotation[1]) * \
+                        rotate_z(self.temp_rotation[2])
+        glUniformMatrix4fv(self.shader.uniforms["cubeTransform"], 1, GL_TRUE, rotation.to_ctypes())
         glUniformMatrix4fv(self.shader.uniforms["cameraTransform"], 1, GL_TRUE, cam_transform)
         glUniformMatrix4fv(self.shader.uniforms["cameraProjection"], 1, GL_TRUE, cam_projection)
 
@@ -150,3 +159,10 @@ class Cube:
 
         for part in self.parts:
             part.draw()
+
+    def apply_rotation(self):
+        self.rotation = (self.rotation *
+                         rotate_x(self.temp_rotation[0]) *
+                         rotate_y(self.temp_rotation[1]) *
+                         rotate_z(self.temp_rotation[2]))
+        self.temp_rotation = [0, 0, 0]
