@@ -8,7 +8,7 @@ from libcube.cube import Cube as CubeModel
 from libcube.orientation import Orientation, Color, Side
 from .engine.linalg import (Matrix, translate, change_axis,
                             rotate_x, rotate_y, rotate_z, C_IDENTITY)
-from .engine.objects import Object3d, nullptr
+from .engine.objects import Object3d
 from .engine.shaders import Program
 from .engine.vbo import load_obj, VAO
 from .engine.light import DirectionalLight
@@ -60,8 +60,7 @@ class CubePart(Object3d):
         for i, color in enumerate(self.colors):
             glUniform3f(self.material.uniforms["colors", i], *CubePart.STICKER_COLORS[color])
 
-        self.vao.bind()
-        glDrawElements(GL_TRIANGLES, self.vao.elements_count, GL_UNSIGNED_SHORT, nullptr)
+        self.vao.draw()
 
 
 class Cube:
@@ -77,7 +76,7 @@ class Cube:
         self.vao_edge = load_obj(models_path / "edge.obj")
         self.vao_flat = load_obj(models_path / "flat.obj")
 
-        self.stickers_texture = Texture(models_path / "stickers.png", flip=True)
+        self.stickers_texture = Texture.load("stickers", flip=True)
 
         self.parts: List[CubePart] = self._generate()
 

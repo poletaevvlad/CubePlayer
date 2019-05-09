@@ -16,6 +16,11 @@ class Texture:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 
+    @staticmethod
+    def load(filename: str, format: GLint = GL_RGB, flip: bool = False):
+        path = Path(__file__).parents[3] / "textures" / (filename + ".png")
+        return Texture(path, format, flip)
+
     def activate(self, index: int) -> None:
         glActiveTexture(GL_TEXTURE0 + index)
         glBindTexture(GL_TEXTURE_2D, self.id)
