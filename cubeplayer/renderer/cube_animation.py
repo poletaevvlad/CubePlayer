@@ -3,7 +3,7 @@ import sys
 from collections import deque
 from typing import Deque, Set, Callable, Optional
 
-from libcube.actions import Action, Turn, Rotate
+from libcube.actions import Action, Turn, Rotate, TurningType
 from libcube.orientation import Side, Orientation
 from .animation import Animator, FloatAnimation, Animation
 from .animation.easing import ease_in_out_quad
@@ -53,22 +53,29 @@ class CubeAnimationManager:
         turns = action.turns
         if turns == 3:
             turns = -1
-        if action.side in {Side.TOP, Side.BOTTOM}:
+        if action.type == TurningType.HORIZONTAL:
             turns = -turns
         angle = math.radians(90 * turns)
 
-        if action.side in {Side.FRONT, Side.BACK}:
+        if action.type == TurningType.SLICE:
             axis = "z"
-        elif action.side in {Side.LEFT, Side.RIGHT}:
+            side = Side.FRONT
+        elif action.type == TurningType.VERTICAL:
             axis = "x"
+            side = Side.LEFT
         else:
             axis = "y"
+            side = Side.TOP
 
-        orientation = Orientation.regular(action.side)
+        orientation = Orientation.regular(side)
         width = self.cube.cube.get_side(orientation).columns
         components = set()
         for index in action.sides:
-            index -= 1
+            if index > 0:
+                index -= 1
+            else:
+                index = width + index
+
             if index == 0:
                 components.update(self._get_parts_front(orientation))
             elif index == width - 1:
@@ -122,7 +129,7 @@ class CubeAnimationManager:
         while len(self.queue) > 0 and animation is None:
             action = self.queue.popleft()
             if isinstance(action, Turn):
-                animation = self._create_turn_animation(action)
+                animation = self._create_turn_animation(action.from_orientation(self.orientation))
             elif isinstance(action, Rotate):
                 animation = self._create_rotate_animation(action)
             else:
