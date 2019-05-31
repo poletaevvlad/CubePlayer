@@ -1,30 +1,14 @@
-from libcube.actions import Action
-from libcube.parser import get_action_representation
-from libcube.cube import Cube
-from libcube.orientation import Orientation, Color
-from cubeplayer.parsing import CubeFormulaParamType, SideConfigurationType
-from cubeplayer.glut_backend import GlutWindow
-
-from typing import List, Tuple, Optional
+import signal
+from typing import List, Tuple
 
 import click
-from click.exceptions import  BadOptionUsage
-import signal
 
-
-def apply_side(cube: Cube, orientation: Orientation,
-               colors: Optional[List[List[Color]]], option_name: str):
-    if colors is None:
-        return
-    side = cube.get_side(orientation)
-    if side.rows != len(colors):
-        raise BadOptionUsage(option_name, "Incorrect number of lines")
-    elif side.columns != len(colors[0]):
-        raise BadOptionUsage(option_name, "Incorrect number of columns")
-
-    for i, line in enumerate(colors):
-        for j, color in enumerate(line):
-            side.colors[i, j] = color
+from cubeplayer.glut_backend import GlutWindow
+from libcube.actions import Action
+from libcube.cli.entry import init_cube
+from libcube.cli.options import CubeFormulaParamType, SideConfigurationType
+from libcube.cube import Cube
+from libcube.parser import get_action_representation
 
 
 @click.command()
@@ -42,17 +26,7 @@ def main(formula: List[Action], dim: Tuple[int, int, int], shuffle: List[Action]
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     cube = Cube(dim)
-
-    orientation = Orientation()
-    apply_side(cube, orientation, front, "front")
-    apply_side(cube, orientation.to_right, right, "right")
-    apply_side(cube, orientation.to_left, left, "left")
-    apply_side(cube, orientation.to_right.to_right, back, "back")
-    apply_side(cube, orientation.to_top, top, "top")
-    apply_side(cube, orientation.to_bottom, bottom, "bottom")
-
-    for shuffle_action in shuffle:
-        orientation = shuffle_action.perform(cube, orientation)
+    init_cube(cube, shuffle, front, left, top, right, bottom, back)
 
     window = GlutWindow(cube, list(map(get_action_representation, formula)))
     for action in formula:

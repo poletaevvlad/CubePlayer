@@ -1,4 +1,4 @@
-from cubeplayer.parsing import construct_error_message
+from cli.options import construct_error_message
 import pytest
 
 
