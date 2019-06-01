@@ -12,11 +12,11 @@ from .engine.camera import Camera
 
 
 class CubeAnimationManager:
-    def __init__(self, cube: Cube, animator: Animator, camera: Camera,
+    def __init__(self, cube: Cube, orientation: Orientation, animator: Animator, camera: Camera,
                  position_callback: Optional[Callable[[float], None]] = None):
         self.queue: Deque[Action] = deque()
         self.cube: Cube = cube
-        self.orientation: Orientation = Orientation()
+        self.orientation: Orientation = orientation
         self.animator: Animator = animator
         self.camera: Camera = camera
         self.is_played: bool = False

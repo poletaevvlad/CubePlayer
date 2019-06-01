@@ -1,6 +1,8 @@
 from typing import List
 
 from OpenGL.GLUT import *
+
+from libcube.orientation import Orientation
 from .renderer.scene import Scene
 from .renderer.animation import Animator
 from .renderer.cube_animation import CubeAnimationManager
@@ -9,7 +11,7 @@ import time
 
 
 class GlutWindow:
-    def __init__(self, cube: Cube, formula: List[str]):
+    def __init__(self, cube: Cube, orientation: Orientation, formula: List[str]):
         self.is_rotating: bool = False
         self.mouse_x: int = 0
         self.mouse_y: int = 0
@@ -25,6 +27,7 @@ class GlutWindow:
         self.scene = Scene(cube, formula)
         self.animator = Animator()
         self.cube_animator = CubeAnimationManager(self.scene.cube,
+                                                  orientation,
                                                   self.animator,
                                                   self.scene.camera,
                                                   self.scene.update_ui_position)

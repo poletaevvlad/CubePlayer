@@ -1,39 +1,28 @@
 import signal
-from typing import List, Tuple
-
-import click
+from argparse import ArgumentParser
 
 from cubeplayer.glut_backend import GlutWindow
-from libcube.actions import Action
-from libcube.cli.entry import init_cube
-from libcube.cli.options import CubeFormulaParamType, SideConfigurationType
-from libcube.cube import Cube
 from libcube.parser import get_action_representation
+from libcube.cli.cube_builder import init_cube_args_parser, build_cube
+from libcube.cli.options import formula_type
 
 
-@click.command()
-@click.argument("formula", type=CubeFormulaParamType(), default="")
-@click.option("-d", "--dim", nargs=3, type=click.types.IntRange(2), default=(3, 3, 3))
-@click.option("-s", "--shuffle", type=CubeFormulaParamType(), default=[])
-@click.option("--front", type=SideConfigurationType(), default=None)
-@click.option("--left", type=SideConfigurationType(), default=None)
-@click.option("--top", type=SideConfigurationType(), default=None)
-@click.option("--right", type=SideConfigurationType(), default=None)
-@click.option("--bottom", type=SideConfigurationType(), default=None)
-@click.option("--back", type=SideConfigurationType(), default=None)
-def main(formula: List[Action], dim: Tuple[int, int, int], shuffle: List[Action],
-         front, left, top, right, bottom, back) -> None:
+def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    cube = Cube(dim)
-    init_cube(cube, shuffle, front, left, top, right, bottom, back)
+    arg_parser = ArgumentParser()
+    arg_parser.add_argument("formula", type=formula_type, default=[])
+    init_cube_args_parser(arg_parser)
+    args = arg_parser.parse_args()
 
-    window = GlutWindow(cube, list(map(get_action_representation, formula)))
-    for action in formula:
+    cube, orientation = build_cube(args)
+
+    window = GlutWindow(cube, orientation,
+                        list(map(get_action_representation, args.formula)))
+    for action in args.formula:
         window.cube_animator.enqueue(action)
     window.run()
 
 
 if __name__ == "__main__":
-    # noinspection PyArgumentList
     main()
