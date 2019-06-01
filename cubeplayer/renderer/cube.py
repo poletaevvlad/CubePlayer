@@ -147,9 +147,10 @@ class Cube:
 
         rotation = self.rotation
         if self.temp_rotation != [0, 0, 0]:
-            rotation *= rotate_x(self.temp_rotation[0]) * \
-                        rotate_y(self.temp_rotation[1]) * \
-                        rotate_z(self.temp_rotation[2])
+            rotation = rotate_x(self.temp_rotation[0]) * \
+                       rotate_y(self.temp_rotation[1]) * \
+                       rotate_z(self.temp_rotation[2]) * \
+                       self.rotation
         glUniformMatrix4fv(self.shader.uniforms["cubeTransform"], 1, GL_TRUE, rotation.to_ctypes())
         glUniformMatrix4fv(self.shader.uniforms["cameraTransform"], 1, GL_TRUE, cam_transform)
         glUniformMatrix4fv(self.shader.uniforms["cameraProjection"], 1, GL_TRUE, cam_projection)
@@ -161,8 +162,8 @@ class Cube:
             part.draw()
 
     def apply_rotation(self):
-        self.rotation = (self.rotation *
-                         rotate_x(self.temp_rotation[0]) *
+        self.rotation = (rotate_x(self.temp_rotation[0]) *
                          rotate_y(self.temp_rotation[1]) *
-                         rotate_z(self.temp_rotation[2]))
+                         rotate_z(self.temp_rotation[2]) *
+                         self.rotation)
         self.temp_rotation = [0, 0, 0]
