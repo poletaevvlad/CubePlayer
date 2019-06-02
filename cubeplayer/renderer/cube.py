@@ -15,19 +15,25 @@ from .engine.texture import Texture
 from .engine.linalg import rotate_x, rotate_y, rotate_z
 
 
+def int_color(color):
+    return (((color >> 16) & 0xFF) / 255.0,
+            ((color >> 8) & 0xFF) / 255.0,
+            (color & 0xFF) / 255.0)
+
+
 class CubePart(Object3d):
     LIGHTS: List[DirectionalLight] = [
-        DirectionalLight((1.0, 0.5, 0.5), (1.0, 1.0, 1.0)),
-        DirectionalLight((0.5, 0.5, 1.0), (-1.0, 0.0, 1.0))
+        DirectionalLight((255.0 / 255.0, 214.0 / 255.0, 170.0 / 255.0), 0.9, (1.0, 1.0, 3.0)),
+        DirectionalLight((170.0 / 255.0, 214.0 / 255.0, 255.0 / 255.0), 0.5, (-1.0, 0.0, 1.0))
     ]
 
     STICKER_COLORS: Dict[Color, Tuple[float, float, float]] = {
-        Color.WHITE: (0.8, 0.8, 0.8),
-        Color.RED: (1.0, 0.0, 0.0),
-        Color.BLUE: (0.0, 0.0, 1.0),
-        Color.ORANGE: (1.0, 0.5, 0.0),
-        Color.GREEN: (0.0, 1.0, 0.0),
-        Color.YELLOW: (1.0, 1.0, 0.0),
+        Color.WHITE: int_color(0xF4F4F4),
+        Color.RED: int_color(0xF03939),
+        Color.BLUE: int_color(0x5486D0),
+        Color.ORANGE: int_color(0xEFA30F),
+        Color.GREEN: int_color(0x6CBF39),
+        Color.YELLOW: int_color(0xF3E139),
         None: (0, 0, 0)
     }
 

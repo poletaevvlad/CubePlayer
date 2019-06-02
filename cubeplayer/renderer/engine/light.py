@@ -15,8 +15,8 @@ def normalize(vec: Vec3) -> Vec3:
 
 
 class DirectionalLight:
-    def __init__(self, color: Vec3, direction: Vec3):
-        self.color: Vec3 = color
+    def __init__(self, color: Vec3, brightness: float, direction: Vec3):
+        self.color: Vec3 = tuple(x * brightness for x in color)
         self.direction: Vec3 = normalize(direction)
 
     def push_uniform(self, shader: Program, var: str) -> None:

@@ -25,9 +25,10 @@ vec3 computeDuffuse(DirectionalLight light, vec3 normal){
 }
 
 
-vec3 computeSpecular(DirectionalLight light, vec3 normal, vec3 viewDirection){
+vec3 computeSpecular(DirectionalLight light, vec3 normal, vec3 viewDirection,
+                     float power){
     vec3 reflectDirection = reflect(-light.direction, normal);
-    float specular = pow(max(dot(viewDirection, reflectDirection), 0.0), 10);
+    float specular = pow(max(dot(viewDirection, reflectDirection), 0.0), power);
     return specular * light.color;
 }
 
@@ -45,18 +46,21 @@ void main(){
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
 
+    vec3 stickers_result = texture(tex, texCoord).rgb;
+    float sticker_factor = stickers_result.r + stickers_result.g + stickers_result.b;
+
+    float power = 6 + 10 * sticker_factor;
     for (int i = 0; i < LIGHTS_COUNT; i++){
         diffuse += computeDuffuse(lights[i], normal);
-        specular += computeSpecular(lights[i], normal, viewDir);
+        specular += computeSpecular(lights[i], normal, viewDir, power);
     }
 
-
-    vec3 stickers_result = texture(tex, texCoord).rgb;
-
-    vec3 materialColor = vec3(1, 1, 1);
+    vec3 materialColor = vec3(1.0, 1.0, 1.0);
     materialColor = blendColors(materialColor, colors[0], stickers_result.r);
     materialColor = blendColors(materialColor, colors[1], stickers_result.g);
     materialColor = blendColors(materialColor, colors[2], stickers_result.b);
 
-    fragColor = vec4(materialColor * (ambient + diffuse + specular), 1);
+    specular *= 0.4 + 0.6 * sticker_factor;
+
+    fragColor = vec4(materialColor * (ambient + 0.9 * diffuse + 1.1 * specular), 1);
 }
