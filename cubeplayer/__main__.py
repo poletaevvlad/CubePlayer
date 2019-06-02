@@ -19,6 +19,8 @@ def main():
     arg_parser = ArgumentParser()
     arg_parser.add_argument("formula", type=formula_type, default=[], nargs="?",
                             help="turns and rotations that will be animated")
+    arg_parser.add_argument("--no-ui", action="store_false", dest="show_formula_ui",
+                            help="hide the sequence of actions at the bottom of a screen")
 
     rendering_group = arg_parser.add_argument_group("rendering options")
     rendering_group.add_argument("--resolution", metavar="W H", nargs=2, default=[854, 480],
@@ -31,7 +33,10 @@ def main():
     args = arg_parser.parse_args()
 
     cube, orientation = build_cube(args)
-    formula_string = list(map(get_action_representation, args.formula))
+    if args.show_formula_ui:
+        formula_string = list(map(get_action_representation, args.formula))
+    else:
+        formula_string = []
     renderer = backend_factory(args)(cube, orientation, args, formula_string)
     renderer.run()
 

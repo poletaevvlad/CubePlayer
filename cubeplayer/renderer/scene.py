@@ -40,4 +40,5 @@ class Scene:
         self.camera.rotation[0] -= delta_y * 0.01
 
     def update_ui_position(self, position):
-        self.ui.position = position
+        if self.ui is not None:
+            self.ui.position = position

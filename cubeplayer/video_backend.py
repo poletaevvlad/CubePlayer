@@ -11,7 +11,7 @@ from os.path import expanduser
 class VideoRenderer(RenderingBackend):
     @staticmethod
     def init_args_parser(parser: ArgumentParser):
-        group = parser.add_argument_group("video output arguments")
+        group = parser.add_argument_group("video output options")
         group.add_argument("--video", help="path to the output video file",
                            metavar="FILE", dest="video_file")
         group.add_argument("--video-fps", help="frame rate of the video", type=integer_type(1),
