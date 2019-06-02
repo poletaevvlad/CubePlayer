@@ -30,6 +30,13 @@ def main():
 
     init_cube_args_parser(arg_parser)
     VideoRenderer.init_args_parser(arg_parser)
+
+    timing_group = arg_parser.add_argument_group("timing options")
+    timing_group.add_argument("--time-before", metavar="MS", type=integer_type(0), default=150,
+                              help="delay before starting an animation", dest="time_before")
+    timing_group.add_argument("--time-after", metavar="MS", type=integer_type(0), default=500,
+                              help="delay before the end of a video after the last animation", dest="time_after")
+
     args = arg_parser.parse_args()
 
     cube, orientation = build_cube(args)

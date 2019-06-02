@@ -5,10 +5,19 @@ from typing import Deque, Set, Callable, Optional
 
 from libcube.actions import Action, Turn, Rotate, TurningType
 from libcube.orientation import Side, Orientation
-from .animation import Animator, FloatAnimation, Animation
+from .animation import Animator, FloatAnimation, Animation, IdleAnimation
 from .animation.easing import ease_in_out_quad
 from .cube import Cube, CubePart
 from .engine.camera import Camera
+
+
+class WaitAction(Action):
+    def __init__(self, duration: float):
+        super(WaitAction, self).__init__()
+        self.duration = duration
+
+    def perform(self, cube: Cube, orientation: Orientation) -> Orientation:
+        return orientation
 
 
 class CubeAnimationManager:
@@ -22,6 +31,7 @@ class CubeAnimationManager:
         self.is_played: bool = False
         self.position_callback = position_callback
         self.completed_count = 0
+        self.finish_callback: Callable[[], None] = None
 
     def enqueue(self, action: Action) -> None:
         self.queue.append(action)
@@ -126,17 +136,25 @@ class CubeAnimationManager:
     def _run_animation(self) -> None:
         self.is_played = True
         animation = None
+        duration = 0
         while len(self.queue) > 0 and animation is None:
             action = self.queue.popleft()
             if isinstance(action, Turn):
                 animation = self._create_turn_animation(action.from_orientation(self.orientation))
+                duration = 0.3
             elif isinstance(action, Rotate):
                 animation = self._create_rotate_animation(action)
+                duration = 0.3
+            elif isinstance(action, WaitAction):
+                animation = IdleAnimation(self._run_animation)
+                duration = action.duration
             else:
                 print("Unknown action", file=sys.stderr)
             self.orientation = action.perform(self.cube.cube, self.orientation)
 
         if animation is None:
             self.is_played = False
+            if self.finish_callback is not None:
+                self.finish_callback()
         else:
-            self.animator.add(animation, 0.3)
+            self.animator.add(animation, duration)

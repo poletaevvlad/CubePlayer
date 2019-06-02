@@ -1,2 +1,2 @@
-from .animations import FloatAnimation, Animation
+from .animations import FloatAnimation, Animation, IdleAnimation
 from .animator import Animator

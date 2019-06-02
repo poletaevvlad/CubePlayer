@@ -50,7 +50,14 @@ class VideoRenderer(RenderingBackend):
             sys.exit(1)
 
         try:
-            for i in range(100):
+            over = False
+
+            def finished_callback():
+                nonlocal over
+                over = True
+
+            self.cube_animator.finish_callback = finished_callback
+            while not over:
                 self.scene.render(*self.args.resolution)
                 glPixelStorei(GL_PACK_ALIGNMENT, 1)
                 data = glReadPixels(0, 0, *self.args.resolution, GL_RGB, GL_UNSIGNED_BYTE)

@@ -1,5 +1,6 @@
 from abc import abstractmethod, ABC
 from typing import Callable, TypeVar, Generic, Optional
+from .easing import linear
 
 EasingFunction = Callable[[float], float]
 CompletionCallback = Callable[[], None]
@@ -45,3 +46,11 @@ class Animation(Generic[T], ABC):
 class FloatAnimation(Animation[float]):
     def interpolate(self, fraction: float) -> float:
         return self.value_to * fraction + self.value_from * (1 - fraction)
+
+
+class IdleAnimation(Animation[None]):
+    def __init__(self, completion_callback: CompletionCallback):
+        super().__init__(None, None, lambda v: None, linear, completion_callback, None)
+
+    def interpolate(self, fraction: float) -> T:
+        return None
