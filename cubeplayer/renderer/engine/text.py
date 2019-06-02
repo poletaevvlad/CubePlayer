@@ -80,7 +80,7 @@ class FontFace:
             if prev_c is not None:
                 measured_width += self.face.get_kerning(prev_c, c).x
             prev_c = c
-            measured_width = self.get_character(c).advance
+            measured_width += self.get_character(c).advance
         x -= round(measured_width * align)
 
         prev_c = None
