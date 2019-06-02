@@ -22,12 +22,7 @@ class VideoRenderer(RenderingBackend):
                            dest="ffmpeg_show_output")
 
     def init_gl(self):
-        glutInit(sys.argv)
-        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE)
-        glutInitContextVersion(3, 3)
-        glutInitContextProfile(GLUT_CORE_PROFILE)
-        glutInitWindowSize(*self.args.resolution)
-        glutCreateWindow("")
+        self.create_glut_window("", False)
         glutHideWindow()
 
     def run(self):

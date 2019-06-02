@@ -15,12 +15,7 @@ class GlutWindow(RenderingBackend):
         self.time: float = None
 
     def init_gl(self):
-        glutInit(sys.argv)
-        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE)
-        glutInitContextVersion(3, 3)
-        glutInitContextProfile(GLUT_CORE_PROFILE)
-        glutInitWindowSize(*self.args.resolution)
-        glutCreateWindow("CubePlayer")
+        self.create_glut_window("CubePlayer", True)
 
         glutDisplayFunc(self._display)
         glutMouseFunc(self._mouse_handler)

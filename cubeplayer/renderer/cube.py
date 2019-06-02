@@ -75,7 +75,7 @@ class Cube:
         self.vao_corner = load_obj(models_path / "corner.obj")
         self.vao_edge = load_obj(models_path / "edge.obj")
         self.vao_flat = load_obj(models_path / "flat.obj")
-        self.stickers_texture = Texture.load("stickers", flip=True)
+        self.stickers_texture = Texture.load("stickers", flip=True, mipmap=True)
 
         self.parts: List[CubePart] = self._generate()
 
