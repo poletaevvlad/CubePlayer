@@ -33,6 +33,9 @@ class CubeAnimationManager:
         self.completed_count = 0
         self.finish_callback: Callable[[], None] = None
 
+        self.turn_duration = [0.2, 0.3]
+        self.rotation_duration = [0.2, 0.3]
+
     def enqueue(self, action: Action) -> None:
         self.queue.append(action)
         if not self.is_played:
@@ -141,10 +144,10 @@ class CubeAnimationManager:
             action = self.queue.popleft()
             if isinstance(action, Turn):
                 animation = self._create_turn_animation(action.from_orientation(self.orientation))
-                duration = 0.3
+                duration = self.turn_duration[1 if action.turns == 2 else 0]
             elif isinstance(action, Rotate):
                 animation = self._create_rotate_animation(action)
-                duration = 0.3
+                duration = self.rotation_duration[1 if action.twice else 0]
             elif isinstance(action, WaitAction):
                 animation = IdleAnimation(self._run_animation)
                 duration = action.duration

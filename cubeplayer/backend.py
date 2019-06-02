@@ -1,5 +1,5 @@
 from argparse import Namespace
-from typing import List
+from typing import List, Optional
 from abc import ABC, abstractmethod
 from OpenGL.GLUT import *
 from OpenGL.GL import *
@@ -27,12 +27,25 @@ class RenderingBackend(ABC):
                                           self.animator, self.scene.camera,
                                           self.scene.update_ui_position)
 
+        self._init_durations(self.cube_animator.turn_duration,
+                             self.args.time_turn1, self.args.time_turn2)
+        self._init_durations(self.cube_animator.rotation_duration,
+                             self.args.time_rotation1, self.args.time_rotation1)
+
         if self.args.time_before > 0:
-            self.cube_animator.enqueue(WaitAction(self.args.time_before / 1000))
+            self.cube_animator.enqueue(WaitAction(self.args.time_before))
         for action in self.args.formula:
             self.cube_animator.enqueue(action)
         if self.args.time_after > 0:
-            self.cube_animator.enqueue(WaitAction(self.args.time_after / 1000))
+            self.cube_animator.enqueue(WaitAction(self.args.time_after))
+
+    @staticmethod
+    def _init_durations(values: List[float],
+                        single: Optional[float], double: Optional[float]):
+        if single is not None:
+            values[0] = single
+        if double is not None:
+            values[1] = double
 
     def create_glut_window(self, window_name: str, double_buffered: bool):
         glutInit(sys.argv)

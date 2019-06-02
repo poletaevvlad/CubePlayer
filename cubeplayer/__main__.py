@@ -1,7 +1,7 @@
 import signal
 from argparse import ArgumentParser, Namespace
 
-from cubeplayer.cli import integer_type
+from cubeplayer.cli import integer_type, duration_type
 from cubeplayer.glut_backend import GlutWindow
 from libcube.parser import get_action_representation
 from libcube.cli.cube_builder import init_cube_args_parser, build_cube
@@ -32,10 +32,18 @@ def main():
     VideoRenderer.init_args_parser(arg_parser)
 
     timing_group = arg_parser.add_argument_group("timing options")
-    timing_group.add_argument("--time-before", metavar="MS", type=integer_type(0), default=150,
+    timing_group.add_argument("--time-before", metavar="MS", type=duration_type, default=0.15,
                               help="delay before starting an animation", dest="time_before")
-    timing_group.add_argument("--time-after", metavar="MS", type=integer_type(0), default=500,
-                              help="delay before the end of a video after the last animation", dest="time_after")
+    timing_group.add_argument("--time-after", metavar="MS", type=duration_type, default=0.5,
+                              help="delay after the end of the last animation", dest="time_after")
+    timing_group.add_argument("--time-turn", metavar="MS", type=duration_type,
+                              help="duration of a turn animation", dest="time_turn1")
+    timing_group.add_argument("--time-turn2", metavar="MS", type=duration_type,
+                              help="duration of a double turn animation", dest="time_turn2")
+    timing_group.add_argument("--time-rotate", metavar="MS", type=duration_type,
+                              help="duration of a 90 degrees rotation animation", dest="time_rotation1")
+    timing_group.add_argument("--time-rotate2", metavar="MS", type=duration_type,
+                              help="duration of a 180 degrees rotation animation", dest="time_rotation2")
 
     args = arg_parser.parse_args()
 
