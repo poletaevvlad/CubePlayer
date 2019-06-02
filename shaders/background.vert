@@ -2,9 +2,12 @@
 
 layout(location = 0) in vec2 position;
 
-out float gradientRatio;
+out float x;
+out float y;
+
 
 void main(){
     gl_Position = vec4(position, 0, 1);
-    gradientRatio = (1 - position.y) / 2;
+    y = (1 - position.y) / 2;
+    x = position.x;
 }
