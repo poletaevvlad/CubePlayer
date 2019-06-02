@@ -16,7 +16,7 @@ class Scene:
 
         self.background: Background = Background((0.4, 0.4, 0.4), (0.2, 0.2, 0.2))
         self.cube = Cube(cube)
-        self.ui = FormulaUI(formula)
+        self.ui = FormulaUI(formula) if len(formula) > 0 else None
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -31,8 +31,9 @@ class Scene:
         camera_perspective = self.camera.perspective_transform(width, height).to_ctypes()
         self.cube.draw(camera_transform, camera_perspective)
 
-        glDisable(GL_DEPTH_TEST)
-        self.ui.render(width, height)
+        if self.ui is not None:
+            glDisable(GL_DEPTH_TEST)
+            self.ui.render(width, height)
 
     def rotate(self, delta_x: float, delta_y: float) -> None:
         self.camera.rotation[1] -= delta_x * 0.01
