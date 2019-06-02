@@ -11,7 +11,8 @@ def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     arg_parser = ArgumentParser()
-    arg_parser.add_argument("formula", type=formula_type, default=[])
+    arg_parser.add_argument("formula", type=formula_type, default=[], nargs="?",
+                            help="turns and rotations that will be animated")
     init_cube_args_parser(arg_parser)
     args = arg_parser.parse_args()
 
