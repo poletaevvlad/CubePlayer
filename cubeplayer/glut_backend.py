@@ -1,43 +1,30 @@
-from typing import List
+import time
 
 from OpenGL.GLUT import *
 
-from libcube.orientation import Orientation
-from .renderer.scene import Scene
-from .renderer.animation import Animator
-from .renderer.cube_animation import CubeAnimationManager
-from libcube.cube import Cube
-import time
+from .backend import RenderingBackend
 
 
-class GlutWindow:
-    def __init__(self, cube: Cube, orientation: Orientation, formula: List[str]):
+class GlutWindow(RenderingBackend):
+    def __init__(self, *argv):
+        super().__init__(*argv)
+
         self.is_rotating: bool = False
         self.mouse_x: int = 0
         self.mouse_y: int = 0
         self.time: float = None
 
+    def init_gl(self):
         glutInit(sys.argv)
         glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE)
         glutInitContextVersion(3, 3)
         glutInitContextProfile(GLUT_CORE_PROFILE)
-        glutInitWindowSize(640, 480)
+        glutInitWindowSize(*self.args.resolution)
         glutCreateWindow("CubePlayer")
 
-        self.scene = Scene(cube, formula)
-        self.animator = Animator()
-        self.cube_animator = CubeAnimationManager(self.scene.cube,
-                                                  orientation,
-                                                  self.animator,
-                                                  self.scene.camera,
-                                                  self.scene.update_ui_position)
         glutDisplayFunc(self._display)
         glutMouseFunc(self._mouse_handler)
         glutMotionFunc(self._mouse_motion)
-
-    @staticmethod
-    def run():
-        glutMainLoop()
 
     def _display(self):
         now = time.clock()
@@ -62,3 +49,6 @@ class GlutWindow:
             self.scene.rotate(x - self.mouse_x, y - self.mouse_y)
             self.mouse_x = x
             self.mouse_y = y
+
+    def run(self):
+        glutMainLoop()
