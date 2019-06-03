@@ -196,6 +196,7 @@ class Cube:
         if self.label is not None:
             self.label.texture.activate(2)
             glUniform1i(self.shader.uniforms["label"], 2)
+            glUniform1f(self.shader.uniforms["label_scale"], self.label.scale)
 
         for part in self.parts:
             part.draw()

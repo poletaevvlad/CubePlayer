@@ -23,6 +23,7 @@ uniform sampler2D label;
 uniform float label_rotation;
 uniform vec3 label_color_visibility;
 uniform vec3 colors[];
+uniform float label_scale;
 
 
 vec3 computeDuffuse(DirectionalLight light, vec3 normal){
@@ -46,9 +47,11 @@ vec3 blendColors(vec3 color1, vec3 color2, float alpha){
 
 vec2 getLabelUV(vec3 label_data){
     float angle = abs(label_rotation) * PI_2;
+    vec2 data = vec2((label_data.x - 0.5) * label_scale + 0.5,
+                     (label_data.y - 0.5) * label_scale + 0.5);
+
     float s = sin(angle), c = cos(angle);
-    vec2 uv = vec2(label_data.x * c - label_data.y * s,
-                   label_data.x * s + label_data.y * c);
+    vec2 uv = vec2(data.x * c - data.y * s, data.x * s + data.y * c);
     if (label_rotation < 0){
         uv.x = 1 - uv.x;
     }

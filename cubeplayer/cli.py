@@ -40,10 +40,10 @@ def texture_image(value: str):
     while s < size:
         s <<= 1
 
-    scale = float(s) / size
+    scale = size / float(s)
     result = Image.new("RGBA", (s, s), (0, 0, 0, 0))
     result.paste(image, ((s - image.size[0]) // 2, (s - image.size[1]) // 2))
-
+    result.save("/home/vlad/tex.png")
     return result, scale
 
 
