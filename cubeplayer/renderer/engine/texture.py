@@ -1,3 +1,5 @@
+from typing import Union
+
 from OpenGL.GL import *
 from PIL import Image
 
@@ -5,12 +7,14 @@ from pathlib import Path
 
 
 class Texture:
-    def __init__(self, path: Path, format: GLint = GL_RGB, flip: bool = False,
+    def __init__(self, img: Union[Path, Image.Image], format: GLint = GL_RGB, flip: bool = False,
                  filter: GLint = GL_LINEAR, mipmap: bool = False):
         self.id = glGenTextures(1)
         glBindTexture(GL_TEXTURE_2D, self.id)
 
-        img: Image = Image.open(str(path))
+        if isinstance(img, Path):
+            img = Image.open(str(img))
+
         if format == GL_RGB:
             img = img.convert("RGB")
             int_format = GL_RGB8
@@ -19,6 +23,7 @@ class Texture:
             int_format = GL_RGBA8
         else:
             raise ValueError("Unsupported base image format")
+
         if flip:
             img = img.transpose(Image.FLIP_TOP_BOTTOM)
         if not mipmap:

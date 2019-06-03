@@ -1,8 +1,9 @@
-from typing import List
+from typing import List, Optional
 
 from OpenGL.GL import *
 
 from libcube.cube import Cube as CubeModel
+from .label import Label
 from .formula_ui import FormulaUI
 from .cube import Cube, CubePart
 from .engine.camera import Camera
@@ -10,12 +11,13 @@ from .engine.objects import Background
 
 
 class Scene:
-    def __init__(self, cube: CubeModel[CubePart], formula: List[str]):
+    def __init__(self, cube: CubeModel[CubePart], formula: List[str],
+                 label: Optional[Label]):
         self.camera = Camera(scale=5 / max(cube.shape))
         self.camera.rotation = [-0.3, 0.5, 0]
 
         self.background: Background = Background((0.4, 0.4, 0.4), (0.2, 0.2, 0.2))
-        self.cube = Cube(cube)
+        self.cube = Cube(cube, label)
         self.ui = FormulaUI(formula) if len(formula) > 0 else None
 
         glEnable(GL_BLEND)

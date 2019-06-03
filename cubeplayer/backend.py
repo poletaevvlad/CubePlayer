@@ -1,4 +1,4 @@
-from argparse import Namespace
+from argparse import Namespace, ArgumentParser
 from typing import List, Optional
 from abc import ABC, abstractmethod
 from OpenGL.GLUT import *
@@ -6,6 +6,7 @@ from OpenGL.GL import *
 
 from libcube.cube import Cube
 from libcube.orientation import Orientation
+from .renderer.label import Label
 from .renderer import Scene
 from .renderer.animation import Animator
 from .renderer.cube_animation import CubeAnimationManager as CubeAnimator, WaitAction
@@ -13,15 +14,15 @@ from .renderer.cube_animation import CubeAnimationManager as CubeAnimator, WaitA
 
 class RenderingBackend(ABC):
     def __init__(self, cube: Cube, orientation: Orientation, args: Namespace,
-                 formula: List[str]):
+                 formula: List[str], arg_parser: ArgumentParser):
         self.args = args
         self.cube = cube
         self.orientation = orientation
         self.formula = formula
-
         self.init_gl()
 
-        self.scene = Scene(self.cube, self.formula)
+        label = Label.from_arguments(self.args, self.cube, arg_parser)
+        self.scene = Scene(self.cube, self.formula, label)
         self.animator = Animator()
         self.cube_animator = CubeAnimator(self.scene.cube, self.orientation,
                                           self.animator, self.scene.camera,

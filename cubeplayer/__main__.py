@@ -3,10 +3,11 @@ from argparse import ArgumentParser, Namespace
 
 from cubeplayer.cli import integer_type, duration_type
 from cubeplayer.glut_backend import GlutWindow
-from libcube.parser import get_action_representation
+from cubeplayer.renderer.label import Label
+from cubeplayer.video_backend import VideoRenderer
 from libcube.cli.cube_builder import init_cube_args_parser, build_cube
 from libcube.cli.options import formula_type
-from cubeplayer.video_backend import VideoRenderer
+from libcube.parser import get_action_representation
 
 
 def backend_factory(args: Namespace):
@@ -44,7 +45,7 @@ def main():
                               help="duration of a 90 degrees rotation animation", dest="time_rotation1")
     timing_group.add_argument("--time-rotate2", metavar="MS", type=duration_type,
                               help="duration of a 180 degrees rotation animation", dest="time_rotation2")
-
+    Label.init_arg_parser(arg_parser)
     args = arg_parser.parse_args()
 
     cube, orientation = build_cube(args)
@@ -52,7 +53,7 @@ def main():
         formula_string = list(map(get_action_representation, args.formula))
     else:
         formula_string = []
-    renderer = backend_factory(args)(cube, orientation, args, formula_string)
+    renderer = backend_factory(args)(cube, orientation, args, formula_string, arg_parser)
     renderer.run()
 
 

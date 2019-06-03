@@ -1,5 +1,7 @@
 from argparse import ArgumentTypeError
 
+from PIL import Image
+
 
 def integer_type(min_value: int):
     def type(value: str):
@@ -27,3 +29,30 @@ def duration_type(value: str):
         return val * multiplier
     except ValueError:
         raise ArgumentTypeError(f"invalid number: '{value}'")
+
+
+def texture_image(value: str):
+    image = Image.open(value).convert("RGBA")
+    image.thumbnail((512, 512))
+
+    size = max(image.size)
+    s = 2
+    while s < size:
+        s <<= 1
+
+    scale = float(s) / size
+    result = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    result.paste(image, ((s - image.size[0]) // 2, (s - image.size[1]) // 2))
+
+    return result, scale
+
+
+def dict_type(dictionary):
+    def type(value: str):
+        try:
+            return dictionary[value]
+        except KeyError:
+            keys = list(dictionary.keys())
+            options = ", ".join(keys[:-1]) + " or " + keys[-1]
+            raise ArgumentTypeError(f"unknown value: `{value}`; expected either {options}")
+    return type

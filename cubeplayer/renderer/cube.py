@@ -1,11 +1,12 @@
 from ctypes import Array
 from pathlib import Path
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Optional
 
 from OpenGL.GL import *
 
 from libcube.cube import Cube as CubeModel
 from libcube.orientation import Orientation, Color, Side
+from .label import Label
 from .engine.linalg import Matrix, translate, change_axis, C_IDENTITY, IDENTITY
 from .engine.objects import Object3d
 from .engine.shaders import Program
@@ -37,13 +38,24 @@ class CubePart(Object3d):
         None: (0, 0, 0)
     }
 
+    LABEL_ROTATIONS = {
+        Side.FRONT:  [[(-4, 0), (-3, 1), (0, 0)], [(-2, 1), (1, 0), (2, 1)], [(2, 0), (1, 1), (-2, 0)]],
+        Side.LEFT:   [[(0, 1), (3, 0), (-4, 1)], [(0, 0), (-2, 0), (-4, 0)], [(-2, 1), (-1, 0), (2, 1)]],
+        Side.RIGHT:  [[(0, 1), (-3, 0), (-4, 1)], [(0, 0), (2, 0), (-4, 0)], [(-2, 1), (1, 0), (2, 1)]],
+        Side.BACK:   [[(-4, 0), (3, 1), (0, 0)], [(-2, 1), (-1, 0), (2, 1)], [(2, 0), (-1, 1), (-2, 0)]],
+        Side.TOP:    [[(2, 2), (3, 0), (-2, 2)], [(0, 1), (-3, 0), (-4, 1)], [(-4, 2), (-1, 0), (0, 2)]],
+        Side.BOTTOM: [[(2, 2), (3, 0), (-2, 2)], [(-2, 1), (1, 0), (2, 1)], [(-4, 2), (-1, 0), (0, 2)]]
+    }
+
     def __init__(self, vao: VAO, material: Program, init_offset: Tuple[float, ...],
                  axis_flip: List[str], colors: List[Color]):
         super(CubePart, self).__init__(vao, material)
         self.object_transform: Matrix = (translate(*init_offset) *
                                          change_axis(*axis_flip))
         self.temp_rotation: List[float] = [0.0, 0.0, 0.0]
-        self.colors: List[colors] = colors
+        self.colors: List[Color] = colors
+        self.label_rotation = 0
+        self.label_visible = -1
 
     def set_temp_rotation(self, x: float = 0, y: float = 0, z: float = 0) -> None:
         self.temp_rotation = [x, y, z]
@@ -62,16 +74,19 @@ class CubePart(Object3d):
         else:
             rotation = C_IDENTITY
         glUniformMatrix4fv(self.material.uniforms["tempTransform"], 1, GL_TRUE, rotation)
+        glUniform1f(self.material.uniforms["label_rotation"], self.label_rotation)
+        glUniform3f(self.material.uniforms["label_color_visibility"],
+                    *[1 if i == self.label_visible else 0 for i in range(3)])
 
         for i, color in enumerate(self.colors):
             glUniform3f(self.material.uniforms["colors", i], *CubePart.STICKER_COLORS[color])
-
         self.vao.draw()
 
 
 class Cube:
-    def __init__(self, cube: CubeModel[CubePart]):
+    def __init__(self, cube: CubeModel[CubePart], label: Optional[Label]):
         self.cube: CubeModel[CubePart] = cube
+        self.label = label
 
         self.shader = Program("object")
         self.shader.use()
@@ -82,8 +97,21 @@ class Cube:
         self.vao_edge = load_obj(models_path / "edge.obj")
         self.vao_flat = load_obj(models_path / "flat.obj")
         self.stickers_texture = Texture.load("stickers", flip=True, mipmap=True)
+        self.labels_texture = Texture.load("labels", flip=True, mipmap=True)
 
         self.parts: List[CubePart] = self._generate()
+
+        if self.label is not None:
+            orientation = Orientation.regular(self.label.side)
+            side = self.cube.get_side(orientation)
+            row, column = self.label.row, self.label.column
+
+            rot_i = 0 if row == 0 else 2 if row == side.rows - 1 else 1
+            rot_j = 0 if column == 0 else 2 if column == side.columns - 1 else 1
+            part = side[row, column].data
+            rotation, color = CubePart.LABEL_ROTATIONS[self.label.side][rot_i][rot_j]
+            part.label_rotation = rotation
+            part.label_visible = color
 
         self.rotation = IDENTITY
         self.temp_rotation = [0, 0, 0]
@@ -163,6 +191,11 @@ class Cube:
 
         self.stickers_texture.activate(0)
         glUniform1i(self.shader.uniforms["tex"], 0)
+        self.labels_texture.activate(1)
+        glUniform1i(self.shader.uniforms["labels_tex"], 1)
+        if self.label is not None:
+            self.label.texture.activate(2)
+            glUniform1i(self.shader.uniforms["label"], 2)
 
         for part in self.parts:
             part.draw()
