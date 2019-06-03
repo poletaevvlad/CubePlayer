@@ -12,7 +12,8 @@ class FormulaUI:
         self.position: float = 0
         self.item_width: int = 45
 
-        self.font = FontFace(Path("/home/vlad/pt-sans.ttf"), 16)
+        path = Path(__file__).parents[2] / "fonts" / "PT_Sans-Regular.ttf"
+        self.font = FontFace(path, 16)
         self.indicator = Sprite(16, 16, Texture.load("ui_indicator", GL_RGBA))
         self.separator = Sprite(16, 16, Texture.load("ui_separator", GL_RGBA,
                                                      filter=GL_NEAREST))
