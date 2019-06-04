@@ -83,12 +83,8 @@ class CubeAnimationManager:
         orientation = Orientation.regular(side)
         width = self.cube.cube.get_side(orientation).columns
         components = set()
-        for index in action.sides:
-            if index > 0:
-                index -= 1
-            else:
-                index = width + index
-
+        for index in Turn.normalize_indices(action.indices, width):
+            index -= 1
             if index == 0:
                 components.update(self._get_parts_front(orientation))
             elif index == width - 1:
