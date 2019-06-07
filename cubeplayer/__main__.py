@@ -7,7 +7,6 @@ from cubeplayer.renderer.label import Label
 from cubeplayer.video_backend import VideoRenderer
 from libcube.cli.cube_builder import init_cube_args_parser, build_cube
 from libcube.cli.options import formula_type
-from libcube.parser import get_action_representation
 
 
 def backend_factory(args: Namespace):
@@ -50,7 +49,7 @@ def main():
 
     cube, orientation = build_cube(args)
     if args.show_formula_ui:
-        formula_string = list(map(get_action_representation, args.formula))
+        formula_string = list(map(str, args.formula))
     else:
         formula_string = []
     renderer = backend_factory(args)(cube, orientation, args, formula_string, arg_parser)
