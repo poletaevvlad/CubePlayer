@@ -1,12 +1,12 @@
 import signal
 from argparse import ArgumentParser, Namespace
 
-from cubeplayer.cli import integer_type, duration_type
+from cubeplayer.cli import duration_type
 from cubeplayer.glut_backend import GlutWindow
 from cubeplayer.renderer.label import Label
 from cubeplayer.video_backend import VideoRenderer
 from libcube.cli.cube_builder import init_cube_args_parser, build_cube
-from libcube.cli.options import formula_type
+from libcube.cli.options import formula_type, integer_type
 
 
 def backend_factory(args: Namespace):
