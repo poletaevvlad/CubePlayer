@@ -1,5 +1,6 @@
 import signal
 from argparse import ArgumentParser, Namespace
+import math
 
 from cubeplayer.cli import duration_type
 from cubeplayer.glut_backend import GlutWindow
@@ -19,6 +20,7 @@ def create_scene(args: Namespace, arg_parser: ArgumentParser):
     cube, orientation = build_cube(args)
 
     return Scene(cube,
+                 args.scale, [x / 180.0 * math.pi for x in args.camera_angle],
                  list(map(str, args.formula)) if args.show_formula_ui else [],
                  Label.from_arguments(args, cube, arg_parser),
                  colors.get_background_theme(args),
@@ -54,6 +56,10 @@ def main():
     rendering_group = arg_parser.add_argument_group("rendering options")
     rendering_group.add_argument("--resolution", metavar="N", nargs=2, default=[854, 480],
                                  help="resolution of a frame (width, height)", type=integer_type(1))
+    rendering_group.add_argument("--scale", metavar="S", default=1.0, dest="scale",
+                                 help="cube scale", type=float)
+    rendering_group.add_argument("--camera-angle", metavar="D", default=[-20, 25, 0], nargs=3,
+                                 dest="camera_angle", help="camera angle in degreese", type=float)
     rendering_group.add_argument("--msaa", type=integer_type(0), default=0, metavar="N_SAMPLES",
                                  help="number of samples for multisample antialiasing (MSAA)")
 

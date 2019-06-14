@@ -14,13 +14,14 @@ ColorType = Tuple[float, float, float]
 
 
 class Scene:
-    def __init__(self, cube: CubeModel[CubePart],
+    def __init__(self, cube: CubeModel[CubePart], factor: float,
+                 rotation: List[float],
                  formula: List[str],
                  label: Optional[Label],
                  bg_colors: Tuple[ColorType, ColorType],
                  color_theme: Dict[Color, Tuple[float, float, float]]):
-        self.camera = Camera(scale=5 / max(cube.shape))
-        self.camera.rotation = [-0.3, 0.5, 0]
+        self.camera = Camera(scale=factor * 5 / max(cube.shape))
+        self.camera.rotation = rotation
 
         self.background: Background = Background(*bg_colors)
         self.cube = Cube(cube, label, color_theme)
