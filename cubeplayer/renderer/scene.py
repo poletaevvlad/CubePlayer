@@ -16,7 +16,7 @@ ColorType = Tuple[float, float, float]
 class Scene:
     def __init__(self, cube: CubeModel[CubePart], factor: float,
                  rotation: List[float],
-                 formula: List[str],
+                 formula: List[str], ui_scale: float,
                  label: Optional[Label],
                  bg_colors: Tuple[ColorType, ColorType],
                  color_theme: Dict[Color, Tuple[float, float, float]]):
@@ -25,7 +25,7 @@ class Scene:
 
         self.background: Background = Background(*bg_colors)
         self.cube = Cube(cube, label, color_theme)
-        self.ui = FormulaUI(formula) if len(formula) > 0 else None
+        self.ui = FormulaUI(formula, ui_scale) if len(formula) > 0 else None
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

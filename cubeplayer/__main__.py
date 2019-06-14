@@ -22,6 +22,7 @@ def create_scene(args: Namespace, arg_parser: ArgumentParser):
     return Scene(cube,
                  args.scale, [x / 180.0 * math.pi for x in args.camera_angle],
                  list(map(str, args.formula)) if args.show_formula_ui else [],
+                 args.ui_scale,
                  Label.from_arguments(args, cube, arg_parser),
                  colors.get_background_theme(args),
                  colors.get_cube_colors(args)), orientation
@@ -52,6 +53,8 @@ def main():
                             help="turns and rotations that will be animated")
     arg_parser.add_argument("--no-ui", action="store_false", dest="show_formula_ui",
                             help="hide the sequence of actions at the bottom of a screen")
+    arg_parser.add_argument("--ui-scale", type=float, dest="ui_scale",
+                            help="user interface scale", default=1.0)
 
     rendering_group = arg_parser.add_argument_group("rendering options")
     rendering_group.add_argument("--resolution", metavar="N", nargs=2, default=[854, 480],
