@@ -16,27 +16,11 @@ from .engine.texture import Texture
 from .engine.linalg import rotate_x, rotate_y, rotate_z
 
 
-def int_color(color):
-    return (((color >> 16) & 0xFF) / 255.0,
-            ((color >> 8) & 0xFF) / 255.0,
-            (color & 0xFF) / 255.0)
-
-
 class CubePart(Object3d):
     LIGHTS: List[DirectionalLight] = [
         DirectionalLight((255.0 / 255.0, 214.0 / 255.0, 170.0 / 255.0), 0.9, (1.0, 1.0, 3.0)),
         DirectionalLight((170.0 / 255.0, 214.0 / 255.0, 255.0 / 255.0), 0.5, (-1.0, 0.0, 1.0))
     ]
-
-    STICKER_COLORS: Dict[Color, Tuple[float, float, float]] = {
-        Color.WHITE: int_color(0xF4F4F4),
-        Color.RED: int_color(0xF03939),
-        Color.BLUE: int_color(0x5486D0),
-        Color.ORANGE: int_color(0xEFA30F),
-        Color.GREEN: int_color(0x6CBF39),
-        Color.YELLOW: int_color(0xF3E139),
-        None: (0, 0, 0)
-    }
 
     LABEL_ROTATIONS = {
         Side.FRONT:  [[(-4, 0), (-3, 1), (0, 0)], [(-2, 1), (1, 0), (2, 1)], [(2, 0), (1, 1), (-2, 0)]],
@@ -47,8 +31,12 @@ class CubePart(Object3d):
         Side.BOTTOM: [[(2, 2), (3, 0), (-2, 2)], [(-2, 1), (1, 0), (2, 1)], [(-4, 2), (-1, 0), (0, 2)]]
     }
 
-    def __init__(self, vao: VAO, material: Program, init_offset: Tuple[float, ...],
-                 axis_flip: List[str], colors: List[Color]):
+    def __init__(self, vao: VAO,
+                 material: Program,
+                 init_offset: Tuple[float, ...],
+                 axis_flip: List[str],
+                 colors: List[Color],
+                 theme: Dict[Color, Tuple[float, float, float]]):
         super(CubePart, self).__init__(vao, material)
         self.object_transform: Matrix = (translate(*init_offset) *
                                          change_axis(*axis_flip))
@@ -56,6 +44,7 @@ class CubePart(Object3d):
         self.colors: List[Color] = colors
         self.label_rotation = 0
         self.label_visible = -1
+        self.theme = theme
 
     def set_temp_rotation(self, x: float = 0, y: float = 0, z: float = 0) -> None:
         self.temp_rotation = [x, y, z]
@@ -79,14 +68,16 @@ class CubePart(Object3d):
                     *[1 if i == self.label_visible else 0 for i in range(3)])
 
         for i, color in enumerate(self.colors):
-            glUniform3f(self.material.uniforms["colors", i], *CubePart.STICKER_COLORS[color])
+            glUniform3f(self.material.uniforms["colors", i], *self.theme[color])
         self.vao.draw()
 
 
 class Cube:
-    def __init__(self, cube: CubeModel[CubePart], label: Optional[Label]):
+    def __init__(self, cube: CubeModel[CubePart], label: Optional[Label],
+                 color_theme: Dict[Color, Tuple[float, float, float]]):
         self.cube: CubeModel[CubePart] = cube
         self.label = label
+        self.color_theme = color_theme
 
         self.shader = Program("object")
         self.shader.use()
@@ -173,7 +164,7 @@ class Cube:
         add_axis("z", z, self.cube.shape[1], axis)
 
         vao = self.vao_flat if num_corners == 1 else self.vao_edge if num_corners == 2 else self.vao_corner
-        part = CubePart(vao, self.shader, position, axis, colors)
+        part = CubePart(vao, self.shader, position, axis, colors, self.color_theme)
         return part
 
     def draw(self, cam_transform: Array, cam_projection: Array) -> None:

@@ -1,8 +1,9 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
 
 from OpenGL.GL import *
 
 from libcube.cube import Cube as CubeModel
+from libcube.orientation import Color
 from .label import Label
 from .formula_ui import FormulaUI
 from .cube import Cube, CubePart
@@ -16,12 +17,13 @@ class Scene:
     def __init__(self, cube: CubeModel[CubePart],
                  formula: List[str],
                  label: Optional[Label],
-                 bg_colors: Tuple[ColorType, ColorType]):
+                 bg_colors: Tuple[ColorType, ColorType],
+                 color_theme: Dict[Color, Tuple[float, float, float]]):
         self.camera = Camera(scale=5 / max(cube.shape))
         self.camera.rotation = [-0.3, 0.5, 0]
 
         self.background: Background = Background(*bg_colors)
-        self.cube = Cube(cube, label)
+        self.cube = Cube(cube, label, color_theme)
         self.ui = FormulaUI(formula) if len(formula) > 0 else None
 
         glEnable(GL_BLEND)

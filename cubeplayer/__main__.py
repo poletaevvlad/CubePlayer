@@ -21,7 +21,8 @@ def create_scene(args: Namespace, arg_parser: ArgumentParser):
     return Scene(cube,
                  list(map(str, args.formula)) if args.show_formula_ui else [],
                  Label.from_arguments(args, cube, arg_parser),
-                 colors.get_background_theme(args)), orientation
+                 colors.get_background_theme(args),
+                 colors.get_cube_colors(args)), orientation
 
 
 def init_timing_arg_parser(arg_parser: ArgumentParser):
