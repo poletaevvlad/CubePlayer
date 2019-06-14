@@ -31,7 +31,7 @@ class Texture:
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter)
         else:
-            glTexStorage2D(GL_TEXTURE_2D, 6, int_format, *img.size)
+            glTexStorage2D(GL_TEXTURE_2D, 4, int_format, *img.size)
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, *img.size, format, GL_UNSIGNED_BYTE, img.tobytes())
             glGenerateMipmap(GL_TEXTURE_2D)
 
