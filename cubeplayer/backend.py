@@ -1,30 +1,25 @@
-from argparse import Namespace, ArgumentParser
-from typing import List, Optional
 from abc import ABC, abstractmethod
-from OpenGL.GLUT import *
-from OpenGL.GL import *
+from argparse import Namespace
+from typing import List, Optional, Callable, Tuple
 
-from libcube.cube import Cube
+from OpenGL.GL import *
+from OpenGL.GLUT import *
+
 from libcube.orientation import Orientation
-from .renderer.label import Label
 from .renderer import Scene
 from .renderer.animation import Animator
 from .renderer.cube_animation import CubeAnimationManager as CubeAnimator, WaitAction
 
 
 class RenderingBackend(ABC):
-    def __init__(self, cube: Cube, orientation: Orientation, args: Namespace,
-                 formula: List[str], arg_parser: ArgumentParser):
+    def __init__(self, scene_factory: Callable[[], Tuple[Scene, Orientation]],
+                 args: Namespace):
         self.args = args
-        self.cube = cube
-        self.orientation = orientation
-        self.formula = formula
         self.init_gl()
 
-        label = Label.from_arguments(self.args, self.cube, arg_parser)
-        self.scene = Scene(self.cube, self.formula, label)
+        self.scene, orientation = scene_factory()
         self.animator = Animator()
-        self.cube_animator = CubeAnimator(self.scene.cube, self.orientation,
+        self.cube_animator = CubeAnimator(self.scene.cube, orientation,
                                           self.animator, self.scene.camera,
                                           self.scene.update_ui_position)
 

@@ -23,7 +23,7 @@ class Label:
                     right=Side.RIGHT, top=Side.TOP, bottom=Side.BOTTOM)
 
     @staticmethod
-    def init_arg_parser(arg_parser: ArgumentParser):
+    def init_args_parser(arg_parser: ArgumentParser):
         group = arg_parser.add_argument_group("label options")
         group.add_argument("--label", metavar="PATH", dest="label_data",
                            help="path to a label file", type=texture_image)

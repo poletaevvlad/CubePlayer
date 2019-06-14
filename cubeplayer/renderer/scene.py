@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from OpenGL.GL import *
 
@@ -9,14 +9,18 @@ from .cube import Cube, CubePart
 from .engine.camera import Camera
 from .engine.objects import Background
 
+ColorType = Tuple[float, float, float]
+
 
 class Scene:
-    def __init__(self, cube: CubeModel[CubePart], formula: List[str],
-                 label: Optional[Label]):
+    def __init__(self, cube: CubeModel[CubePart],
+                 formula: List[str],
+                 label: Optional[Label],
+                 bg_colors: Tuple[ColorType, ColorType]):
         self.camera = Camera(scale=5 / max(cube.shape))
         self.camera.rotation = [-0.3, 0.5, 0]
 
-        self.background: Background = Background((0.4, 0.4, 0.4), (0.2, 0.2, 0.2))
+        self.background: Background = Background(*bg_colors)
         self.cube = Cube(cube, label)
         self.ui = FormulaUI(formula) if len(formula) > 0 else None
 
