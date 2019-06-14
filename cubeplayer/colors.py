@@ -12,9 +12,10 @@ def int_color(color):
 ColorType = Tuple[float, float, float]
 
 BACKGROUND_THEMES = {
-    "grays": [(0.4, 0.4, 0.4), (0.2, 0.2, 0.2)],
-    "white": [(1.0, 1.0, 1.0), (1.0, 1.0, 1.0)],
-    "black": [(0.0, 0.0, 0.0), (0.0, 0.0, 0.0)],
+    "grays": [int_color(0x666666), int_color(0x333333)],
+    "light": [int_color(0xdddddd), int_color(0x999999)],
+    "white": [int_color(0xFFFFFF), int_color(0xFFFFFF)],
+    "black": [int_color(0x000000), int_color(0x000000)]
 }
 
 THEMES = {
@@ -33,6 +34,14 @@ THEMES = {
         Color.ORANGE: int_color(0x404040),
         Color.GREEN: int_color(0x404040),
         Color.YELLOW: int_color(0x404040)
+    },
+    "blues": {
+        Color.WHITE: int_color(0x889ab4),
+        Color.RED: int_color(0x7a8aa2),
+        Color.BLUE: int_color(0x6c7b90),
+        Color.ORANGE: int_color(0x5f6b7e),
+        Color.GREEN: int_color(0x515c6c),
+        Color.YELLOW: int_color(0x444d5a)
     }
 }
 
