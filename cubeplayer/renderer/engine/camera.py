@@ -3,7 +3,6 @@ from math import radians, tan
 from .linalg import Matrix, rotate_x, rotate_y, rotate_z, translate, uscale
 
 Coordinate = Tuple[float, float, float]
-
 ORIGIN: Coordinate = (0.0, 0.0, 0.0)
 
 
@@ -15,12 +14,12 @@ class Camera:
         self.center: List[float] = list(center)
         self.rotation: List[float] = list(rotation)
         self.offset_value: float = offset_value
-        self.horizontal_fov: float = horizontal_fov / scale
+        self.horizontal_fov: float = horizontal_fov# / scale
         self.far: float = far
         self.near: float = near
 
     def position_transform(self) -> Matrix:
-        rotate = rotate_z(self.rotation[2]) * rotate_x(self.rotation[0]) * \
+        rotate = uscale(self.scale) * rotate_z(self.rotation[2]) * rotate_x(self.rotation[0]) * \
                  rotate_y(self.rotation[1])
         return translate(0, 0, -self.offset_value) * rotate
 
