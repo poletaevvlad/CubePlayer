@@ -33,8 +33,8 @@ class CubeAnimationManager:
         self.completed_count = 0
         self.finish_callback: Callable[[], None] = None
 
-        self.turn_duration = [0.2, 0.3]
-        self.rotation_duration = [0.2, 0.3]
+        self.turn_duration = [0.4, 0.6]
+        self.rotation_duration = [0.4, 0.6]
 
     def enqueue(self, action: Action) -> None:
         self.queue.append(action)

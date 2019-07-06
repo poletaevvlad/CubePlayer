@@ -22,7 +22,7 @@ class GlutWindow(RenderingBackend):
         glutMotionFunc(self._mouse_motion)
 
     def _display(self):
-        now = time.clock()
+        now = time.time()
         if self.time is not None:
             self.animator.run(now - self.time)
         self.time = now

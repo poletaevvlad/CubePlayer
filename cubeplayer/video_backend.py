@@ -31,10 +31,12 @@ class VideoRenderer(RenderingBackend):
             process = subprocess.Popen(
                 [self.args.ffmpeg_path,
                  "-f", "rawvideo",
+                 "-vcodec", "rawvideo",
                  "-pix_fmt", "rgb24",
                  "-s", "x".join(map(str, self.args.resolution)),
                  "-r", str(self.args.video_frame_rate),
                  "-i", "pipe:",
+
                  "-y",
                  "-vf", "vflip",
                  "-r", str(self.args.video_frame_rate),
@@ -57,11 +59,13 @@ class VideoRenderer(RenderingBackend):
                 over = True
 
             self.cube_animator.finish_callback = finished_callback
+            frames_count = 0
             while not over:
                 self.scene.render(*self.args.resolution)
                 glPixelStorei(GL_PACK_ALIGNMENT, 1)
                 data = glReadPixels(0, 0, *self.args.resolution, GL_RGB, GL_UNSIGNED_BYTE)
                 process.stdin.write(data)
+                frames_count += 1
                 self.animator.run(1.0 / self.args.video_frame_rate)
             process.stdin.close()
             code = process.wait()
