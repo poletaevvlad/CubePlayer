@@ -3,8 +3,8 @@ import sys
 from collections import deque
 from typing import Deque, Set, Callable, Optional
 
-from libcube.actions import Action, Turn, Rotate, TurningType
-from libcube.orientation import Side, Orientation
+from cubelang.actions import Action, Turn, Rotate, TurningType
+from cubelang.orientation import Side, Orientation
 from .animation import Animator, FloatAnimation, Animation, IdleAnimation
 from .animation.easing import ease_in_out_quad
 from .cube import Cube, CubePart

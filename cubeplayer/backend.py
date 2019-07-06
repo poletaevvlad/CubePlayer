@@ -5,7 +5,7 @@ from typing import List, Optional, Callable, Tuple
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 
-from libcube.orientation import Orientation
+from cubelang.orientation import Orientation
 from .renderer import Scene
 from .renderer.animation import Animator
 from .renderer.cube_animation import CubeAnimationManager as CubeAnimator, WaitAction

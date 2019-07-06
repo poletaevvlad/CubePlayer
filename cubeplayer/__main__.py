@@ -7,8 +7,8 @@ from cubeplayer.glut_backend import GlutWindow
 from cubeplayer.renderer.label import Label
 from cubeplayer.video_backend import VideoRenderer
 from cubeplayer import colors
-from libcube.cli.cube_builder import init_cube_args_parser, build_cube
-from libcube.cli.options import formula_type, integer_type
+from cubelang.cli.cube_builder import init_cube_args_parser, build_cube
+from cubelang.cli.options import formula_type, integer_type
 from cubeplayer.renderer.scene import Scene
 
 

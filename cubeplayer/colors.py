@@ -1,7 +1,7 @@
 from argparse import ArgumentParser, ArgumentError, Namespace
 from typing import Tuple, Dict
-from libcube.cli.options import dict_type
-from libcube.orientation import Color
+from cubelang.cli.options import dict_type
+from cubelang.orientation import Color
 
 
 def int_color(color):

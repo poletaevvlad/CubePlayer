@@ -4,8 +4,8 @@ from typing import Tuple, List, Dict, Optional
 
 from OpenGL.GL import *
 
-from libcube.cube import Cube as CubeModel
-from libcube.orientation import Orientation, Color, Side
+from cubelang.cube import Cube as CubeModel
+from cubelang.orientation import Orientation, Color, Side
 from .label import Label
 from .engine.linalg import Matrix, translate, change_axis, C_IDENTITY, IDENTITY
 from .engine.objects import Object3d

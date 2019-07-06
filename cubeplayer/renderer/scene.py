@@ -2,8 +2,8 @@ from typing import List, Optional, Tuple, Dict
 
 from OpenGL.GL import *
 
-from libcube.cube import Cube as CubeModel
-from libcube.orientation import Color
+from cubelang.cube import Cube as CubeModel
+from cubelang.orientation import Color
 from .label import Label
 from .formula_ui import FormulaUI
 from .cube import Cube, CubePart

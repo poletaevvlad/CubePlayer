@@ -1,6 +1,6 @@
 import subprocess
 from argparse import ArgumentParser
-from libcube.cli.options import integer_type
+from cubelang.cli.options import integer_type
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 

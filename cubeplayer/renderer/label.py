@@ -3,8 +3,8 @@ from typing import Optional
 
 from OpenGL.GL import *
 
-from libcube.cube import Cube
-from libcube.orientation import Side, Orientation
+from cubelang.cube import Cube
+from cubelang.orientation import Side, Orientation
 from .engine.texture import Texture
 from ..cli import texture_image, dict_type
 
