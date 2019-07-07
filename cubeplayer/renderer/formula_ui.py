@@ -13,7 +13,7 @@ class FormulaUI:
         self.item_width: int = int(45 * scale)
         self.scale = scale
 
-        path = Path(__file__).parents[2] / "fonts" / "PT_Sans-Regular.ttf"
+        path = Path(__file__).parents[1] / "fonts" / "PT_Sans-Regular.ttf"
         self.font = FontFace(path, 16 * scale)
         self.indicator = Sprite(int(16 * scale), int(16 * scale),
                                 Texture.load("ui_indicator", GL_RGBA))
