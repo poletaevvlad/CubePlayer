@@ -41,7 +41,7 @@ class Texture:
 
     @staticmethod
     def load(filename: str, *args, **kwargs):
-        path = Path(__file__).parents[3] / "textures" / (filename + ".png")
+        path = Path(__file__).parents[2] / "textures" / (filename + ".png")
         return Texture(path, *args, **kwargs)
 
     def activate(self, index: int) -> None:

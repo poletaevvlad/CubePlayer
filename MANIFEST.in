@@ -1,0 +1,4 @@
+include cubeplayer/fonts/*
+include cubeplayer/models/*
+include cubeplayer/shaders/*
+include cubeplayer/textures/*

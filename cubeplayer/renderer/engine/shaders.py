@@ -3,7 +3,7 @@ from typing import Dict, Union, Tuple
 
 from pathlib import Path
 
-SHADERS_DIR = Path(__file__).parents[3] / "shaders"
+SHADERS_DIR = Path(__file__).parents[2] / "shaders"
 
 
 class Shader:

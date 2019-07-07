@@ -1,4 +1,4 @@
-from attr import dataclass
+from dataclasses import dataclass
 from freetype import *
 from pathlib import Path
 from typing import Dict
